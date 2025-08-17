@@ -69,13 +69,13 @@ public class Cliente {
     @JsonIgnoreProperties("clientes")
     private Categoria categoria;
 
-    // @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    // @JsonIgnoreProperties("cliente")
-    // private List<Endereco> enderecos;
+    @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnoreProperties("cliente")
+    private List<Endereco> enderecos;
 
-    // @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    // @JsonIgnoreProperties("cliente")
-    // private List<Contrato> contratos;
+    @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnoreProperties("cliente")
+    private List<Contrato> contratos;
 
     public Cliente() {
         this.createdAt = LocalDateTime.now();

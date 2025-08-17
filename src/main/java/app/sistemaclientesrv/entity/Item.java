@@ -30,13 +30,13 @@ public class Item {
 
     @NotNull(message = "O valor é obrigatório")
     @Positive(message = "O valor deve ser positivo")
-    @Column(nullable = false, precision = 10, scale = 2)
+    @Column(nullable = false)
     private Double valor;
 
-    @Column(precision = 10, scale = 2)
+    @Column
     private Double desconto = 0.0;
 
-    @Column(name = "valor_final", precision = 10, scale = 2)
+    @Column(name = "valor_final")
     private Double valorFinal;
 
     @Column(name = "created_at", nullable = false, updatable = false)

@@ -1,5 +1,6 @@
 package app.sistemaclientesrv.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -7,6 +8,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * Entidade que representa as categorias de clientes (Pessoa Física, Pessoa Jurídica).
@@ -45,11 +47,9 @@ public class Categoria {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    /** TODO: Ativar após criar Cliente.java
-     * @OneToMany(mappedBy = "categoria", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-     * @JsonIgnoreProperties("categoria")
-     * private List<Cliente> clientes;
-     */
+     @OneToMany(mappedBy = "categoria", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+     @JsonIgnoreProperties("categoria")
+     private List<Cliente> clientes;
 
     public Categoria() {
         this.createdAt = LocalDateTime.now();

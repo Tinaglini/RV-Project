@@ -1,5 +1,6 @@
 package app.sistemaclientesrv.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -9,6 +10,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * Entidade que representa os serviços oferecidos pela RV Digital.
@@ -36,7 +38,7 @@ public class Servico {
 
     @NotNull(message = "O valor é obrigatório")
     @Positive(message = "O valor deve ser positivo")
-    @Column(nullable = false, precision = 10, scale = 2)
+    @Column(nullable = false)
     private Double valor;
 
     @NotBlank(message = "A categoria é obrigatória")
@@ -53,9 +55,9 @@ public class Servico {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    // @OneToMany(mappedBy = "servico", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    // @JsonIgnoreProperties("servico")
-    // private List<Item> itens;
+    @OneToMany(mappedBy = "servico", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnoreProperties("servico")
+    private List<Item> itens;
 
     public Servico() {
         this.createdAt = LocalDateTime.now();

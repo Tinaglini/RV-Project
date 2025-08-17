@@ -10,6 +10,7 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * Entidade que representa os contratos de serviços dos clientes RV Digital.
@@ -37,7 +38,7 @@ public class Contrato {
     private String status = "ATIVO"; // ATIVO, INATIVO, CANCELADO
 
     @Positive(message = "Valor total deve ser positivo")
-    @Column(name = "valor_total", precision = 10, scale = 2)
+    @Column(name = "valor_total")
     private Double valorTotal = 0.0;
 
     @Size(max = 255, message = "Observações devem ter no máximo 255 caracteres")
@@ -53,9 +54,9 @@ public class Contrato {
     @JsonIgnoreProperties("contratos")
     private Cliente cliente;
 
-    // @OneToMany(mappedBy = "contrato", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    // @JsonIgnoreProperties("contrato")
-    // private List<Item> itens;
+    @OneToMany(mappedBy = "contrato", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnoreProperties("contrato")
+    private List<Item> itens;
 
     public Contrato() {
         this.createdAt = LocalDateTime.now();
