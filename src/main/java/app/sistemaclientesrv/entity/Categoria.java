@@ -11,8 +11,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * Entidade que representa as categorias de clientes (Pessoa Física, Pessoa Jurídica).
- * Implementa relacionamento 1-N com Cliente.
+ * Entidade que representa as categorias de clientes da RV Digital.
+ * Tipos: PESSOA_FISICA, PESSOA_JURIDICA
  */
 @Entity
 @Table(name = "categorias")
@@ -47,9 +47,9 @@ public class Categoria {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-     @OneToMany(mappedBy = "categoria", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-     @JsonIgnoreProperties("categoria")
-     private List<Cliente> clientes;
+    @OneToMany(mappedBy = "categoria", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnoreProperties("categoria")
+    private List<Cliente> clientes;
 
     public Categoria() {
         this.createdAt = LocalDateTime.now();
