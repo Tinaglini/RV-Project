@@ -11,6 +11,7 @@ import java.util.List;
 @Repository
 public interface ServicoRepository extends JpaRepository<Servico, Long> {
 
+    List<Servico> findAll();
     // OBRIGATÓRIO 1: Busca serviços por nome (ignora maiúsculas/minúsculas)
     List<Servico> findByNomeContainingIgnoreCase(String nome);
 

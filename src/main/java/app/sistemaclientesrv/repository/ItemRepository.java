@@ -11,6 +11,7 @@ import java.util.List;
 @Repository
 public interface ItemRepository extends JpaRepository<Item, Long> {
 
+    List<Item> findAll();
     // OBRIGATÓRIO 1: Busca itens por contrato
     List<Item> findByContratoId(Long contratoId);
 

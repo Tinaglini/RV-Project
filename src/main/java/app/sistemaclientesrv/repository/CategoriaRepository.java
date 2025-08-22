@@ -16,6 +16,7 @@ import java.util.Optional;
 @Repository
 public interface CategoriaRepository extends JpaRepository<Categoria, Long> {
 
+    List<Categoria> findAll();
     // Busca categorias por nome (ignora maiúsculas/minúsculas)
     List<Categoria> findByNomeContainingIgnoreCase(String nome);
 

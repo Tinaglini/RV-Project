@@ -12,6 +12,7 @@ import java.util.Optional;
 @Repository
 public interface ClienteRepository extends JpaRepository<Cliente, Long> {
 
+    List<Cliente> findAll();
     // OBRIGATÓRIO 1: Busca clientes por nome (ignora maiúsculas/minúsculas)
     List<Cliente> findByNomeContainingIgnoreCase(String nome);
 

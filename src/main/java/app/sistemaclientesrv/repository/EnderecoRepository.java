@@ -11,6 +11,7 @@ import java.util.List;
 @Repository
 public interface EnderecoRepository extends JpaRepository<Endereco, Long> {
 
+    List<Endereco> findAll();
     // OBRIGATÓRIO 1: Busca endereços por cidade (ignora maiúsculas/minúsculas)
     List<Endereco> findByCidadeContainingIgnoreCase(String cidade);
 

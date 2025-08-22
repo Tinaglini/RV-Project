@@ -12,6 +12,7 @@ import java.util.List;
 @Repository
 public interface ContratoRepository extends JpaRepository<Contrato, Long> {
 
+    List<Contrato> findAll();
     // OBRIGATÓRIO 1: Busca contratos por status
     List<Contrato> findByStatus(String status);
 
