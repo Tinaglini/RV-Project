@@ -1,6 +1,8 @@
 package app.sistemaclientesrv.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -39,7 +41,7 @@ public class Cliente {
 
     @Email(message = "Email deve ser válido")
     @Size(max = 100, message = "Email deve ter no máximo 100 caracteres")
-    @Column(length = 100)
+    @Column(length = 100, unique = true)
     private String email;
 
     @Size(max = 15, message = "Telefone deve ter no máximo 15 caracteres")
@@ -49,6 +51,25 @@ public class Cliente {
     @NotNull(message = "A data de nascimento é obrigatória")
     @Column(name = "data_nascimento", nullable = false)
     private LocalDate dataNascimento;
+
+    // NOVA FUNCIONALIDADE: SENHA
+    @Size(min = 6, max = 255, message = "A senha deve ter no mínimo 6 caracteres")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY) // Só aceita na escrita, não retorna na leitura
+    @Transient // Este campo não será persistido no banco
+    private String senha;
+
+    @JsonIgnore // Nunca serializa esta propriedade
+    @Column(name = "senha_hash", nullable = false)
+    private String senhaHash; // Senha criptografada que será salva no banco
+
+    @Column(name = "ultimo_login")
+    private LocalDateTime ultimoLogin;
+
+    @Column(name = "tentativas_login")
+    private Integer tentativasLogin = 0;
+
+    @Column(name = "conta_bloqueada")
+    private Boolean contaBloqueada = false;
 
     @Column(nullable = false)
     private Boolean ativo = true;
@@ -89,9 +110,39 @@ public class Cliente {
         this.dataNascimento = dataNascimento;
     }
 
+    public Cliente(String nome, String cpf, String email, String senha, LocalDate dataNascimento) {
+        this();
+        this.nome = nome;
+        this.cpf = cpf;
+        this.email = email;
+        this.senha = senha;
+        this.dataNascimento = dataNascimento;
+    }
+
     @PreUpdate
     public void preUpdate() {
         this.updatedAt = LocalDateTime.now();
+    }
+
+    // Método para registrar tentativa de login
+    public void registrarTentativaLogin() {
+        this.tentativasLogin++;
+        if (this.tentativasLogin >= 5) {
+            this.contaBloqueada = true;
+        }
+    }
+
+    // Método para resetar tentativas de login após sucesso
+    public void resetarTentativasLogin() {
+        this.tentativasLogin = 0;
+        this.contaBloqueada = false;
+        this.ultimoLogin = LocalDateTime.now();
+    }
+
+    // Método para desbloquear conta manualmente
+    public void desbloquearConta() {
+        this.contaBloqueada = false;
+        this.tentativasLogin = 0;
     }
 
     @Override
@@ -104,6 +155,7 @@ public class Cliente {
                 ", telefone='" + telefone + '\'' +
                 ", statusCadastro='" + statusCadastro + '\'' +
                 ", ativo=" + ativo +
+                ", contaBloqueada=" + contaBloqueada +
                 '}';
     }
 }
