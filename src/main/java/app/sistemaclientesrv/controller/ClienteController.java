@@ -68,36 +68,27 @@ public class ClienteController {
         return ResponseEntity.ok(clienteService.buscarPorEmail(email));
     }
 
-    // NOVOS ENDPOINTS PARA AUTENTICAÇÃO
-
     /**
      * POST /clientes/login
      * Realiza login do cliente
      */
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody Map<String, String> loginRequest) {
-        try {
-            String cpfOuEmail = loginRequest.get("cpfOuEmail");
-            String senha = loginRequest.get("senha");
+    public ResponseEntity<Map<String, Object>> login(@RequestBody Map<String, String> loginRequest) {
+        String cpfOuEmail = loginRequest.get("cpfOuEmail");
+        String senha = loginRequest.get("senha");
 
-            if (cpfOuEmail == null || senha == null) {
-                return ResponseEntity.badRequest()
-                        .body(Map.of("erro", "CPF/Email e senha são obrigatórios"));
-            }
-
-            Cliente cliente = clienteService.autenticar(cpfOuEmail, senha);
-
-            // Retornar dados do cliente (sem a senha)
-            return ResponseEntity.ok(Map.of(
-                    "sucesso", true,
-                    "mensagem", "Login realizado com sucesso",
-                    "cliente", cliente
-            ));
-
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("erro", e.getMessage()));
+        if (cpfOuEmail == null || senha == null) {
+            throw new IllegalArgumentException("CPF/Email e senha são obrigatórios");
         }
+
+        Cliente cliente = clienteService.autenticar(cpfOuEmail, senha);
+
+        // Retornar dados do cliente (sem a senha)
+        return ResponseEntity.ok(Map.of(
+                "sucesso", true,
+                "mensagem", "Login realizado com sucesso",
+                "cliente", cliente
+        ));
     }
 
     /**
@@ -105,28 +96,21 @@ public class ClienteController {
      * Altera senha do cliente
      */
     @PutMapping("/{id}/alterar-senha")
-    public ResponseEntity<?> alterarSenha(@PathVariable Long id,
-                                          @RequestBody Map<String, String> senhaRequest) {
-        try {
-            String senhaAtual = senhaRequest.get("senhaAtual");
-            String novaSenha = senhaRequest.get("novaSenha");
+    public ResponseEntity<Map<String, Object>> alterarSenha(@PathVariable Long id,
+                                                            @RequestBody Map<String, String> senhaRequest) {
+        String senhaAtual = senhaRequest.get("senhaAtual");
+        String novaSenha = senhaRequest.get("novaSenha");
 
-            if (senhaAtual == null || novaSenha == null) {
-                return ResponseEntity.badRequest()
-                        .body(Map.of("erro", "Senha atual e nova senha são obrigatórias"));
-            }
-
-            clienteService.alterarSenha(id, senhaAtual, novaSenha);
-
-            return ResponseEntity.ok(Map.of(
-                    "sucesso", true,
-                    "mensagem", "Senha alterada com sucesso"
-            ));
-
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest()
-                    .body(Map.of("erro", e.getMessage()));
+        if (senhaAtual == null || novaSenha == null) {
+            throw new IllegalArgumentException("Senha atual e nova senha são obrigatórias");
         }
+
+        clienteService.alterarSenha(id, senhaAtual, novaSenha);
+
+        return ResponseEntity.ok(Map.of(
+                "sucesso", true,
+                "mensagem", "Senha alterada com sucesso"
+        ));
     }
 
     /**
@@ -134,19 +118,13 @@ public class ClienteController {
      * Desbloqueia conta do cliente (função administrativa)
      */
     @PutMapping("/{id}/desbloquear")
-    public ResponseEntity<?> desbloquearConta(@PathVariable Long id) {
-        try {
-            clienteService.desbloquearConta(id);
+    public ResponseEntity<Map<String, Object>> desbloquearConta(@PathVariable Long id) {
+        clienteService.desbloquearConta(id);
 
-            return ResponseEntity.ok(Map.of(
-                    "sucesso", true,
-                    "mensagem", "Conta desbloqueada com sucesso"
-            ));
-
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest()
-                    .body(Map.of("erro", e.getMessage()));
-        }
+        return ResponseEntity.ok(Map.of(
+                "sucesso", true,
+                "mensagem", "Conta desbloqueada com sucesso"
+        ));
     }
 
     /**
@@ -163,29 +141,21 @@ public class ClienteController {
      * Verifica se CPF ou email já existem no sistema
      */
     @PostMapping("/verificar-cpf-email")
-    public ResponseEntity<?> verificarCpfEmail(@RequestBody Map<String, String> verificacaoRequest) {
-        try {
-            String cpfOuEmail = verificacaoRequest.get("cpfOuEmail");
+    public ResponseEntity<Map<String, Object>> verificarCpfEmail(@RequestBody Map<String, String> verificacaoRequest) {
+        String cpfOuEmail = verificacaoRequest.get("cpfOuEmail");
 
-            if (cpfOuEmail == null) {
-                return ResponseEntity.badRequest()
-                        .body(Map.of("erro", "CPF ou email é obrigatório"));
-            }
-
-            // Tenta buscar o cliente
-            Cliente cliente = clienteService.buscarPorCpfOuEmail(cpfOuEmail);
-
-            return ResponseEntity.ok(Map.of(
-                    "existe", true,
-                    "clienteId", cliente.getId(),
-                    "nome", cliente.getNome()
-            ));
-
-        } catch (RuntimeException e) {
-            return ResponseEntity.ok(Map.of(
-                    "existe", false,
-                    "mensagem", "CPF/Email disponível para cadastro"
-            ));
+        if (cpfOuEmail == null) {
+            throw new IllegalArgumentException("CPF ou email é obrigatório");
         }
+
+        // Tenta buscar o cliente - se não encontrar, o Service lança RuntimeException
+        // que será capturada pelo GlobalExceptionHandler
+        Cliente cliente = clienteService.buscarPorCpfOuEmail(cpfOuEmail);
+
+        return ResponseEntity.ok(Map.of(
+                "existe", true,
+                "clienteId", cliente.getId(),
+                "nome", cliente.getNome()
+        ));
     }
 }
