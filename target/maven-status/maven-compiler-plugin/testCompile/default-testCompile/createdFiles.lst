@@ -1,0 +1,9 @@
+app/sistemaclientesrv/service/ItemServiceTest.class
+app/sistemaclientesrv/service/ClienteServiceTest.class
+app/sistemaclientesrv/service/ClienteServiceIntegrationTest.class
+app/sistemaclientesrv/service/ServicoServiceIntegrationTest.class
+app/sistemaclientesrv/service/ContratoServiceTest.class
+app/sistemaclientesrv/service/CategoriaServiceIntegrationTest.class
+app/sistemaclientesrv/service/CategoriaServiceTest.class
+app/sistemaclientesrv/service/ServicoServiceTest.class
+app/sistemaclientesrv/service/EnderecoServiceTest.class

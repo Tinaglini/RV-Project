@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EnderecoService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Sistema Clientes RV</a> &gt; <a href="index.source.html" class="el_package">app.sistemaclientesrv.service</a> &gt; <span class="el_source">EnderecoService.java</span></div><h1>EnderecoService.java</h1><pre class="source lang-java linenums">package app.sistemaclientesrv.service;
+
+import app.sistemaclientesrv.entity.Endereco;
+import app.sistemaclientesrv.repository.EnderecoRepository;
+import app.sistemaclientesrv.repository.ClienteRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
+@Service
+@Transactional
+<span class="fc" id="L14">public class EnderecoService {</span>
+
+    @Autowired
+    private EnderecoRepository enderecoRepository;
+
+    @Autowired
+    private ClienteRepository clienteRepository;
+
+    public Endereco salvar(Endereco endereco) {
+<span class="pc bpc" id="L23" title="2 of 4 branches missed.">        if (endereco.getCliente() != null &amp;&amp; endereco.getCliente().getId() != null) {</span>
+<span class="fc" id="L24">            clienteRepository.findById(endereco.getCliente().getId())</span>
+<span class="fc" id="L25">                    .orElseThrow(() -&gt; new RuntimeException(&quot;Cliente não encontrado&quot;));</span>
+        }
+<span class="fc" id="L27">        return enderecoRepository.save(endereco);</span>
+    }
+
+    public Endereco buscarPorId(Long id) {
+<span class="fc" id="L31">        return enderecoRepository.findById(id)</span>
+<span class="fc" id="L32">                .orElseThrow(() -&gt; new RuntimeException(&quot;Endereço não encontrado&quot;));</span>
+    }
+
+    public List&lt;Endereco&gt; listarTodos() {
+<span class="fc" id="L36">        return enderecoRepository.findAll();</span>
+    }
+
+    public Endereco atualizar(Long id, Endereco endereco) {
+<span class="fc" id="L40">        buscarPorId(id);</span>
+<span class="fc" id="L41">        endereco.setId(id);</span>
+<span class="fc" id="L42">        return enderecoRepository.save(endereco);</span>
+    }
+
+    public void deletar(Long id) {
+<span class="fc" id="L46">        Endereco endereco = buscarPorId(id);</span>
+<span class="fc" id="L47">        enderecoRepository.delete(endereco);</span>
+<span class="fc" id="L48">    }</span>
+
+    public List&lt;Endereco&gt; buscarPorCliente(Long clienteId) {
+<span class="fc" id="L51">        return enderecoRepository.findByClienteId(clienteId);</span>
+    }
+
+    public List&lt;Endereco&gt; buscarPorCidade(String cidade) {
+<span class="fc" id="L55">        return enderecoRepository.findByCidadeContainingIgnoreCase(cidade);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>
