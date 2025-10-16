@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ContratoService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Sistema Clientes RV</a> &gt; <a href="index.source.html" class="el_package">app.sistemaclientesrv.service</a> &gt; <span class="el_source">ContratoService.java</span></div><h1>ContratoService.java</h1><pre class="source lang-java linenums">package app.sistemaclientesrv.service;
+
+import app.sistemaclientesrv.entity.Contrato;
+import app.sistemaclientesrv.repository.ContratoRepository;
+import app.sistemaclientesrv.repository.ClienteRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
+@Service
+@Transactional
+<span class="fc" id="L14">public class ContratoService {</span>
+
+    @Autowired
+    private ContratoRepository contratoRepository;
+
+    @Autowired
+    private ClienteRepository clienteRepository;
+
+    public Contrato salvar(Contrato contrato) {
+<span class="pc bpc" id="L23" title="2 of 4 branches missed.">        if (contrato.getCliente() != null &amp;&amp; contrato.getCliente().getId() != null) {</span>
+<span class="fc" id="L24">            clienteRepository.findById(contrato.getCliente().getId())</span>
+<span class="fc" id="L25">                    .orElseThrow(() -&gt; new RuntimeException(&quot;Cliente não encontrado&quot;));</span>
+        }
+
+<span class="fc bfc" id="L28" title="All 2 branches covered.">        if (contrato.getDataFim() != null &amp;&amp;</span>
+<span class="pc bpc" id="L29" title="1 of 2 branches missed.">                contrato.getDataFim().isBefore(contrato.getDataInicio())) {</span>
+<span class="fc" id="L30">            throw new RuntimeException(&quot;Data fim deve ser maior que data início&quot;);</span>
+        }
+
+<span class="fc" id="L33">        return contratoRepository.save(contrato);</span>
+    }
+
+    public Contrato buscarPorId(Long id) {
+<span class="fc" id="L37">        return contratoRepository.findById(id)</span>
+<span class="fc" id="L38">                .orElseThrow(() -&gt; new RuntimeException(&quot;Contrato não encontrado&quot;));</span>
+    }
+
+    public List&lt;Contrato&gt; listarTodos() {
+<span class="fc" id="L42">        return contratoRepository.findAll();</span>
+    }
+
+    public Contrato atualizar(Long id, Contrato contrato) {
+<span class="fc" id="L46">        buscarPorId(id);</span>
+<span class="fc" id="L47">        contrato.setId(id);</span>
+<span class="fc" id="L48">        return contratoRepository.save(contrato);</span>
+    }
+
+    public void deletar(Long id) {
+<span class="fc" id="L52">        Contrato contrato = buscarPorId(id);</span>
+<span class="fc" id="L53">        contratoRepository.delete(contrato);</span>
+<span class="fc" id="L54">    }</span>
+
+    public List&lt;Contrato&gt; buscarPorCliente(Long clienteId) {
+<span class="fc" id="L57">        return contratoRepository.findByClienteId(clienteId);</span>
+    }
+
+    public List&lt;Contrato&gt; buscarPorStatus(String status) {
+<span class="fc" id="L61">        return contratoRepository.findByStatus(status);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

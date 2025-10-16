@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CategoriaService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Sistema Clientes RV</a> &gt; <a href="index.source.html" class="el_package">app.sistemaclientesrv.service</a> &gt; <span class="el_source">CategoriaService.java</span></div><h1>CategoriaService.java</h1><pre class="source lang-java linenums">package app.sistemaclientesrv.service;
+
+import app.sistemaclientesrv.entity.Categoria;
+import app.sistemaclientesrv.repository.CategoriaRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+/**
+ * Serviço responsável pelas regras de negócio das categorias.
+ * Controla validações, salvamento e consultas das categorias de clientes.
+ */
+@Service
+@Transactional
+<span class="fc" id="L18">public class CategoriaService {</span>
+
+    @Autowired
+    private CategoriaRepository categoriaRepository;
+
+    // Salva uma nova categoria ou atualiza existente
+    public Categoria salvar(Categoria categoria) {
+        // Regra: não pode ter duas categorias com o mesmo nome
+<span class="fc bfc" id="L26" title="All 2 branches covered.">        if (categoriaRepository.existsByNome(categoria.getNome())) {</span>
+<span class="fc" id="L27">            throw new RuntimeException(&quot;Já existe uma categoria com o nome: &quot; + categoria.getNome());</span>
+        }
+
+<span class="fc" id="L30">        return categoriaRepository.save(categoria);</span>
+    }
+
+    // Busca categoria por ID (lança erro se não encontrar)
+    public Categoria buscarPorId(Long id) {
+<span class="fc" id="L35">        return categoriaRepository.findById(id)</span>
+<span class="fc" id="L36">                .orElseThrow(() -&gt; new RuntimeException(&quot;Categoria não encontrada com ID: &quot; + id));</span>
+    }
+
+    // Lista todas as categorias cadastradas
+    public List&lt;Categoria&gt; listarTodos() {
+<span class="fc" id="L41">        return categoriaRepository.findAll();</span>
+    }
+
+    // Atualiza uma categoria existente
+    public Categoria atualizar(Long id, Categoria categoria) {
+<span class="fc" id="L46">        buscarPorId(id); // Verifica se existe</span>
+<span class="fc" id="L47">        categoria.setId(id);</span>
+<span class="fc" id="L48">        categoria.setUpdatedAt(LocalDateTime.now());</span>
+<span class="fc" id="L49">        return categoriaRepository.save(categoria);</span>
+    }
+
+    // Remove uma categoria do sistema
+    public void deletar(Long id) {
+<span class="fc" id="L54">        Categoria categoria = buscarPorId(id);</span>
+<span class="fc" id="L55">        categoriaRepository.delete(categoria);</span>
+<span class="fc" id="L56">    }</span>
+
+    // Retorna apenas as categorias ativas
+    public List&lt;Categoria&gt; buscarAtivas() {
+<span class="fc" id="L60">        return categoriaRepository.findByAtivoTrue();</span>
+    }
+
+    // Busca categorias que contenham o nome pesquisado
+    public List&lt;Categoria&gt; buscarPorNome(String nome) {
+<span class="fc" id="L65">        return categoriaRepository.findByNomeContainingIgnoreCase(nome);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

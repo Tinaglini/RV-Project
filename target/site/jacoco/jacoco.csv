@@ -1,0 +1,7 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+Sistema Clientes RV,app.sistemaclientesrv.service,ServicoService,0,76,0,2,0,17,0,11,0,10
+Sistema Clientes RV,app.sistemaclientesrv.service,EnderecoService,0,79,2,2,0,16,2,10,0,10
+Sistema Clientes RV,app.sistemaclientesrv.service,ItemService,0,104,4,4,0,21,4,11,0,11
+Sistema Clientes RV,app.sistemaclientesrv.service,ClienteService,50,338,17,33,10,74,15,28,0,18
+Sistema Clientes RV,app.sistemaclientesrv.service,CategoriaService,0,75,0,2,0,16,0,10,0,9
+Sistema Clientes RV,app.sistemaclientesrv.service,ContratoService,0,93,3,5,0,19,3,11,0,10
