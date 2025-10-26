@@ -54,7 +54,6 @@ class EnderecoServiceTest {
     @Test
     @DisplayName("TESTE DE UNIDADE - Salvar endereço com dados válidos")
     void salvarEnderecoComDadosValidos() {
-        // Mock: cliente existe
         when(clienteRepository.findById(1L)).thenReturn(Optional.of(cliente));
         when(enderecoRepository.save(any(Endereco.class))).thenReturn(enderecoValido);
 
@@ -68,7 +67,6 @@ class EnderecoServiceTest {
     @Test
     @DisplayName("TESTE DE UNIDADE - Lançar exceção ao salvar com cliente inexistente")
     void lancarExcecaoAoSalvarComClienteInexistente() {
-        // Mock: cliente não existe
         when(clienteRepository.findById(1L)).thenReturn(Optional.empty());
 
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
@@ -170,5 +168,67 @@ class EnderecoServiceTest {
         assertNotNull(resultado);
         assertEquals(2, resultado.size());
         verify(enderecoRepository, times(1)).findAll();
+    }
+
+
+    @Test
+    @DisplayName("TESTE DE UNIDADE - Salvar endereço sem cliente não valida cliente")
+    void salvarEnderecoSemClienteNaoValidaCliente() {
+        enderecoValido.setCliente(null);
+
+        when(enderecoRepository.save(any(Endereco.class))).thenReturn(enderecoValido);
+
+        Endereco resultado = enderecoService.salvar(enderecoValido);
+
+        assertNotNull(resultado);
+        verify(clienteRepository, never()).findById(any());
+    }
+
+    @Test
+    @DisplayName("TESTE DE UNIDADE - Salvar endereço com cliente sem ID não valida")
+    void salvarEnderecoComClienteSemIdNaoValida() {
+        Cliente clienteSemId = new Cliente();
+        enderecoValido.setCliente(clienteSemId);
+
+        when(enderecoRepository.save(any(Endereco.class))).thenReturn(enderecoValido);
+
+        Endereco resultado = enderecoService.salvar(enderecoValido);
+
+        assertNotNull(resultado);
+        verify(clienteRepository, never()).findById(any());
+    }
+
+    @Test
+    @DisplayName("TESTE DE UNIDADE - Listar todos retorna lista vazia")
+    void listarTodosRetornaListaVazia() {
+        when(enderecoRepository.findAll()).thenReturn(Arrays.asList());
+
+        List<Endereco> resultado = enderecoService.listarTodos();
+
+        assertNotNull(resultado);
+        assertEquals(0, resultado.size());
+    }
+
+    @Test
+    @DisplayName("TESTE DE UNIDADE - Buscar por cliente retorna lista vazia")
+    void buscarPorClienteRetornaListaVazia() {
+        when(enderecoRepository.findByClienteId(999L)).thenReturn(Arrays.asList());
+
+        List<Endereco> resultado = enderecoService.buscarPorCliente(999L);
+
+        assertNotNull(resultado);
+        assertEquals(0, resultado.size());
+    }
+
+    @Test
+    @DisplayName("TESTE DE UNIDADE - Buscar por cidade retorna lista vazia")
+    void buscarPorCidadeRetornaListaVazia() {
+        when(enderecoRepository.findByCidadeContainingIgnoreCase("INEXISTENTE"))
+                .thenReturn(Arrays.asList());
+
+        List<Endereco> resultado = enderecoService.buscarPorCidade("INEXISTENTE");
+
+        assertNotNull(resultado);
+        assertEquals(0, resultado.size());
     }
 }
