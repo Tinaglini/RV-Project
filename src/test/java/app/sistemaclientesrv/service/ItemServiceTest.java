@@ -62,7 +62,6 @@ class ItemServiceTest {
     @Test
     @DisplayName("TESTE DE UNIDADE - Salvar item com dados válidos e calcular valor final")
     void salvarItemComDadosValidosECalcularValorFinal() {
-        // Mock: contrato e serviço existem
         when(contratoRepository.findById(1L)).thenReturn(Optional.of(contrato));
         when(servicoRepository.findById(1L)).thenReturn(Optional.of(servico));
         when(itemRepository.save(any(Item.class))).thenReturn(itemValido);
@@ -70,14 +69,13 @@ class ItemServiceTest {
         Item resultado = itemService.salvar(itemValido);
 
         assertNotNull(resultado);
-        assertEquals(20.0, resultado.getValorFinal()); // 2 * 10.0
+        assertEquals(20.0, resultado.getValorFinal());
         verify(itemRepository, times(1)).save(any(Item.class));
     }
 
     @Test
     @DisplayName("TESTE DE UNIDADE - Lançar exceção ao salvar com contrato inexistente")
     void lancarExcecaoAoSalvarComContratoInexistente() {
-        // Mock: contrato não existe
         when(contratoRepository.findById(1L)).thenReturn(Optional.empty());
 
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
@@ -91,7 +89,6 @@ class ItemServiceTest {
     @Test
     @DisplayName("TESTE DE UNIDADE - Lançar exceção ao salvar com serviço inexistente")
     void lancarExcecaoAoSalvarComServicoInexistente() {
-        // Mock: contrato existe mas serviço não
         when(contratoRepository.findById(1L)).thenReturn(Optional.of(contrato));
         when(servicoRepository.findById(1L)).thenReturn(Optional.empty());
 
@@ -114,7 +111,6 @@ class ItemServiceTest {
 
         Item resultado = itemService.salvar(itemValido);
 
-        // (2 * 10.0) - 5.0 = 15.0
         assertNotNull(resultado);
         assertEquals(15.0, resultado.getValorFinal());
     }
@@ -209,5 +205,106 @@ class ItemServiceTest {
         assertNotNull(resultado);
         assertEquals(2, resultado.size());
         verify(itemRepository, times(1)).findAll();
+    }
+
+
+    @Test
+    @DisplayName("TESTE DE UNIDADE - Salvar item sem contrato não valida contrato")
+    void salvarItemSemContratoNaoValidaContrato() {
+        itemValido.setContrato(null);
+
+        when(servicoRepository.findById(1L)).thenReturn(Optional.of(servico));
+        when(itemRepository.save(any(Item.class))).thenReturn(itemValido);
+
+        Item resultado = itemService.salvar(itemValido);
+
+        assertNotNull(resultado);
+        verify(contratoRepository, never()).findById(any());
+    }
+
+    @Test
+    @DisplayName("TESTE DE UNIDADE - Salvar item com contrato sem ID não valida")
+    void salvarItemComContratoSemIdNaoValida() {
+        Contrato contratoSemId = new Contrato();
+        itemValido.setContrato(contratoSemId);
+
+        when(servicoRepository.findById(1L)).thenReturn(Optional.of(servico));
+        when(itemRepository.save(any(Item.class))).thenReturn(itemValido);
+
+        Item resultado = itemService.salvar(itemValido);
+
+        assertNotNull(resultado);
+        verify(contratoRepository, never()).findById(any());
+    }
+
+    @Test
+    @DisplayName("TESTE DE UNIDADE - Salvar item sem serviço não valida serviço")
+    void salvarItemSemServicoNaoValidaServico() {
+        itemValido.setServico(null);
+
+        when(contratoRepository.findById(1L)).thenReturn(Optional.of(contrato));
+        when(itemRepository.save(any(Item.class))).thenReturn(itemValido);
+
+        Item resultado = itemService.salvar(itemValido);
+
+        assertNotNull(resultado);
+        verify(servicoRepository, never()).findById(any());
+    }
+
+    @Test
+    @DisplayName("TESTE DE UNIDADE - Salvar item com serviço sem ID não valida")
+    void salvarItemComServicoSemIdNaoValida() {
+        Servico servicoSemId = new Servico();
+        itemValido.setServico(servicoSemId);
+
+        when(contratoRepository.findById(1L)).thenReturn(Optional.of(contrato));
+        when(itemRepository.save(any(Item.class))).thenReturn(itemValido);
+
+        Item resultado = itemService.salvar(itemValido);
+
+        assertNotNull(resultado);
+        verify(servicoRepository, never()).findById(any());
+    }
+
+    @Test
+    @DisplayName("TESTE DE UNIDADE - Calcular valor final com desconto null")
+    void calcularValorFinalComDescontoNull() {
+        itemValido.setDesconto(null);
+        itemValido.calcularValorFinal();
+
+        assertEquals(20.0, itemValido.getValorFinal());
+    }
+
+    @Test
+    @DisplayName("TESTE DE UNIDADE - Listar todos retorna lista vazia")
+    void listarTodosRetornaListaVazia() {
+        when(itemRepository.findAll()).thenReturn(Arrays.asList());
+
+        List<Item> resultado = itemService.listarTodos();
+
+        assertNotNull(resultado);
+        assertEquals(0, resultado.size());
+    }
+
+    @Test
+    @DisplayName("TESTE DE UNIDADE - Buscar por contrato retorna lista vazia")
+    void buscarPorContratoRetornaListaVazia() {
+        when(itemRepository.findByContratoId(999L)).thenReturn(Arrays.asList());
+
+        List<Item> resultado = itemService.buscarPorContrato(999L);
+
+        assertNotNull(resultado);
+        assertEquals(0, resultado.size());
+    }
+
+    @Test
+    @DisplayName("TESTE DE UNIDADE - Buscar por serviço retorna lista vazia")
+    void buscarPorServicoRetornaListaVazia() {
+        when(itemRepository.findByServicoId(999L)).thenReturn(Arrays.asList());
+
+        List<Item> resultado = itemService.buscarPorServico(999L);
+
+        assertNotNull(resultado);
+        assertEquals(0, resultado.size());
     }
 }

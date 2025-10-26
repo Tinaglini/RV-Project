@@ -1,4 +1,5 @@
 app/sistemaclientesrv/config/DataLoader.class
+app/sistemaclientesrv/exception/GlobalExceptionHandler.class
 app/sistemaclientesrv/controller/ItemController.class
 app/sistemaclientesrv/service/ContratoService.class
 app/sistemaclientesrv/service/ServicoService.class

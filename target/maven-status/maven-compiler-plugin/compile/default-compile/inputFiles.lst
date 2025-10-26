@@ -17,6 +17,7 @@
 /Users/tinaglini/Documents/GitHub/RV-Project/src/main/java/app/sistemaclientesrv/repository/EnderecoRepository.java
 /Users/tinaglini/Documents/GitHub/RV-Project/src/main/java/app/sistemaclientesrv/service/ContratoService.java
 /Users/tinaglini/Documents/GitHub/RV-Project/src/main/java/app/sistemaclientesrv/controller/EnderecoController.java
+/Users/tinaglini/Documents/GitHub/RV-Project/src/main/java/app/sistemaclientesrv/exception/GlobalExceptionHandler.java
 /Users/tinaglini/Documents/GitHub/RV-Project/src/main/java/app/sistemaclientesrv/service/CategoriaService.java
 /Users/tinaglini/Documents/GitHub/RV-Project/src/main/java/app/sistemaclientesrv/controller/ServicoController.java
 /Users/tinaglini/Documents/GitHub/RV-Project/src/main/java/app/sistemaclientesrv/repository/ServicoRepository.java
