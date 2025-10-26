@@ -44,7 +44,6 @@ class CategoriaServiceTest {
     @Test
     @DisplayName("TESTE DE UNIDADE - Salvar categoria com dados válidos")
     void salvarCategoriaComDadosValidos() {
-        // Mock: nome único
         when(categoriaRepository.existsByNome("PESSOA_FISICA")).thenReturn(false);
         when(categoriaRepository.save(any(Categoria.class))).thenReturn(categoriaValida);
 
@@ -58,7 +57,6 @@ class CategoriaServiceTest {
     @Test
     @DisplayName("TESTE DE UNIDADE - Lançar exceção ao salvar categoria com nome duplicado")
     void lancarExcecaoAoSalvarComNomeDuplicado() {
-        // Mock: nome já existe
         when(categoriaRepository.existsByNome("PESSOA_FISICA")).thenReturn(true);
 
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
@@ -164,5 +162,40 @@ class CategoriaServiceTest {
         assertNotNull(resultado);
         assertEquals(2, resultado.size());
         verify(categoriaRepository, times(1)).findAll();
+    }
+
+    @Test
+    @DisplayName("TESTE DE UNIDADE - Listar todas retorna lista vazia quando não há categorias")
+    void listarTodasRetornaListaVaziaQuandoNaoHaCategorias() {
+        when(categoriaRepository.findAll()).thenReturn(Arrays.asList());
+
+        List<Categoria> resultado = categoriaService.listarTodos();
+
+        assertNotNull(resultado);
+        assertEquals(0, resultado.size());
+        verify(categoriaRepository, times(1)).findAll();
+    }
+
+    @Test
+    @DisplayName("TESTE DE UNIDADE - Buscar por nome retorna lista vazia quando não encontra")
+    void buscarPorNomeRetornaListaVaziaQuandoNaoEncontra() {
+        when(categoriaRepository.findByNomeContainingIgnoreCase("INEXISTENTE"))
+                .thenReturn(Arrays.asList());
+
+        List<Categoria> resultado = categoriaService.buscarPorNome("INEXISTENTE");
+
+        assertNotNull(resultado);
+        assertEquals(0, resultado.size());
+    }
+
+    @Test
+    @DisplayName("TESTE DE UNIDADE - Buscar ativas retorna lista vazia quando nenhuma ativa")
+    void buscarAtivasRetornaListaVaziaQuandoNenhumaAtiva() {
+        when(categoriaRepository.findByAtivoTrue()).thenReturn(Arrays.asList());
+
+        List<Categoria> resultado = categoriaService.buscarAtivas();
+
+        assertNotNull(resultado);
+        assertEquals(0, resultado.size());
     }
 }
