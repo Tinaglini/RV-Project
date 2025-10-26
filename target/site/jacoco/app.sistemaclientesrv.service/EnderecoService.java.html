@@ -20,7 +20,7 @@ import java.util.List;
     private ClienteRepository clienteRepository;
 
     public Endereco salvar(Endereco endereco) {
-<span class="pc bpc" id="L23" title="2 of 4 branches missed.">        if (endereco.getCliente() != null &amp;&amp; endereco.getCliente().getId() != null) {</span>
+<span class="fc bfc" id="L23" title="All 4 branches covered.">        if (endereco.getCliente() != null &amp;&amp; endereco.getCliente().getId() != null) {</span>
 <span class="fc" id="L24">            clienteRepository.findById(endereco.getCliente().getId())</span>
 <span class="fc" id="L25">                    .orElseThrow(() -&gt; new RuntimeException(&quot;Cliente não encontrado&quot;));</span>
         }

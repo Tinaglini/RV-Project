@@ -1,5 +1,6 @@
 app/sistemaclientesrv/service/ItemServiceTest.class
 app/sistemaclientesrv/service/ClienteServiceTest.class
+app/sistemaclientesrv/service/ClienteServiceEdgeCasesTest.class
 app/sistemaclientesrv/service/ClienteServiceIntegrationTest.class
 app/sistemaclientesrv/service/ServicoServiceIntegrationTest.class
 app/sistemaclientesrv/service/ContratoServiceTest.class

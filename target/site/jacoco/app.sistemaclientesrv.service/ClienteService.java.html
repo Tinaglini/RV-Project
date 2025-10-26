@@ -32,7 +32,7 @@ import java.util.Optional;
         }
 
         // NOVA REGRA: Email único (se informado)
-<span class="pc bpc" id="L35" title="2 of 4 branches missed.">        if (cliente.getEmail() != null &amp;&amp; !cliente.getEmail().trim().isEmpty()) {</span>
+<span class="fc bfc" id="L35" title="All 4 branches covered.">        if (cliente.getEmail() != null &amp;&amp; !cliente.getEmail().trim().isEmpty()) {</span>
 <span class="fc" id="L36">            Optional&lt;Cliente&gt; clienteExistente = clienteRepository.findByEmail(cliente.getEmail());</span>
 <span class="fc bfc" id="L37" title="All 2 branches covered.">            if (clienteExistente.isPresent()) {</span>
 <span class="fc" id="L38">                throw new RuntimeException(&quot;Já existe um cliente cadastrado com este email&quot;);</span>
@@ -63,7 +63,7 @@ import java.util.Optional;
         // Categoria padrão se não informada
 <span class="fc bfc" id="L64" title="All 2 branches covered.">        if (cliente.getCategoria() == null) {</span>
 <span class="fc" id="L65">            Categoria categoriaPF = categoriaRepository.findByNome(&quot;PESSOA_FISICA&quot;).orElse(null);</span>
-<span class="pc bpc" id="L66" title="1 of 2 branches missed.">            if (categoriaPF != null) {</span>
+<span class="fc bfc" id="L66" title="All 2 branches covered.">            if (categoriaPF != null) {</span>
 <span class="fc" id="L67">                cliente.setCategoria(categoriaPF);</span>
             }
         }
@@ -86,20 +86,20 @@ import java.util.Optional;
 <span class="fc" id="L86">        cliente.setUpdatedAt(LocalDateTime.now());</span>
 
         // Se uma nova senha foi fornecida, criptografar
-<span class="pc bpc" id="L89" title="3 of 4 branches missed.">        if (cliente.getSenha() != null &amp;&amp; !cliente.getSenha().trim().isEmpty()) {</span>
-<span class="nc bnc" id="L90" title="All 2 branches missed.">            if (cliente.getSenha().length() &lt; 6) {</span>
+<span class="fc bfc" id="L89" title="All 4 branches covered.">        if (cliente.getSenha() != null &amp;&amp; !cliente.getSenha().trim().isEmpty()) {</span>
+<span class="pc bpc" id="L90" title="1 of 2 branches missed.">            if (cliente.getSenha().length() &lt; 6) {</span>
 <span class="nc" id="L91">                throw new RuntimeException(&quot;A senha deve ter no mínimo 6 caracteres&quot;);</span>
             }
-<span class="nc" id="L93">            String senhaHash = passwordEncoder.encode(cliente.getSenha());</span>
-<span class="nc" id="L94">            cliente.setSenhaHash(senhaHash);</span>
-<span class="nc" id="L95">        } else {</span>
+<span class="fc" id="L93">            String senhaHash = passwordEncoder.encode(cliente.getSenha());</span>
+<span class="fc" id="L94">            cliente.setSenhaHash(senhaHash);</span>
+<span class="fc" id="L95">        } else {</span>
             // Manter a senha existente se não foi fornecida nova senha
 <span class="fc" id="L97">            cliente.setSenhaHash(clienteExistente.getSenhaHash());</span>
         }
 
         // Aplicar regra de status na atualização
-<span class="pc bpc" id="L101" title="2 of 4 branches missed.">        if (cliente.getTelefone() == null || cliente.getTelefone().trim().isEmpty()) {</span>
-<span class="nc" id="L102">            cliente.setStatusCadastro(&quot;INCOMPLETO&quot;);</span>
+<span class="fc bfc" id="L101" title="All 4 branches covered.">        if (cliente.getTelefone() == null || cliente.getTelefone().trim().isEmpty()) {</span>
+<span class="fc" id="L102">            cliente.setStatusCadastro(&quot;INCOMPLETO&quot;);</span>
         } else {
 <span class="fc" id="L104">            cliente.setStatusCadastro(&quot;COMPLETO&quot;);</span>
         }
@@ -139,8 +139,8 @@ import java.util.Optional;
         }
 
         // Verificar se o cliente está ativo
-<span class="pc bpc" id="L142" title="1 of 2 branches missed.">        if (!cliente.getAtivo()) {</span>
-<span class="nc" id="L143">            throw new RuntimeException(&quot;Cliente inativo. Entre em contato com o suporte.&quot;);</span>
+<span class="fc bfc" id="L142" title="All 2 branches covered.">        if (!cliente.getAtivo()) {</span>
+<span class="fc" id="L143">            throw new RuntimeException(&quot;Cliente inativo. Entre em contato com o suporte.&quot;);</span>
         }
 
         // Verificar a senha
@@ -169,11 +169,11 @@ import java.util.Optional;
 
         // Se não encontrou por CPF, tenta por email
 <span class="fc" id="L171">        Optional&lt;Cliente&gt; clientePorEmail = clienteRepository.findByEmail(cpfOuEmail);</span>
-<span class="pc bpc" id="L172" title="1 of 2 branches missed.">        if (clientePorEmail.isPresent()) {</span>
+<span class="fc bfc" id="L172" title="All 2 branches covered.">        if (clientePorEmail.isPresent()) {</span>
 <span class="fc" id="L173">            return clientePorEmail.get();</span>
         }
 
-<span class="nc" id="L176">        throw new RuntimeException(&quot;Cliente não encontrado com CPF/Email: &quot; + cpfOuEmail);</span>
+<span class="fc" id="L176">        throw new RuntimeException(&quot;Cliente não encontrado com CPF/Email: &quot; + cpfOuEmail);</span>
     }
 
     /**
@@ -188,8 +188,8 @@ import java.util.Optional;
         }
 
         // Validar nova senha
-<span class="pc bpc" id="L191" title="2 of 4 branches missed.">        if (novaSenha == null || novaSenha.trim().isEmpty()) {</span>
-<span class="nc" id="L192">            throw new RuntimeException(&quot;A nova senha é obrigatória&quot;);</span>
+<span class="fc bfc" id="L191" title="All 4 branches covered.">        if (novaSenha == null || novaSenha.trim().isEmpty()) {</span>
+<span class="fc" id="L192">            throw new RuntimeException(&quot;A nova senha é obrigatória&quot;);</span>
         }
 
 <span class="pc bpc" id="L195" title="1 of 2 branches missed.">        if (novaSenha.length() &lt; 6) {</span>
