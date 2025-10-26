@@ -56,7 +56,6 @@ class ContratoServiceTest {
     @Test
     @DisplayName("TESTE DE UNIDADE - Salvar contrato com dados válidos")
     void salvarContratoComDadosValidos() {
-        // Mock: cliente existe
         when(clienteRepository.findById(1L)).thenReturn(Optional.of(cliente));
         when(contratoRepository.save(any(Contrato.class))).thenReturn(contratoValido);
 
@@ -70,7 +69,6 @@ class ContratoServiceTest {
     @Test
     @DisplayName("TESTE DE UNIDADE - Lançar exceção ao salvar com cliente inexistente")
     void lancarExcecaoAoSalvarComClienteInexistente() {
-        // Mock: cliente não existe
         when(clienteRepository.findById(1L)).thenReturn(Optional.empty());
 
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
@@ -87,7 +85,6 @@ class ContratoServiceTest {
         contratoValido.setDataInicio(LocalDate.of(2024, 12, 31));
         contratoValido.setDataFim(LocalDate.of(2024, 1, 1));
 
-        // Mock: cliente existe
         when(clienteRepository.findById(1L)).thenReturn(Optional.of(cliente));
 
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
@@ -190,5 +187,79 @@ class ContratoServiceTest {
         assertNotNull(resultado);
         assertEquals(2, resultado.size());
         verify(contratoRepository, times(1)).findAll();
+    }
+
+    @Test
+    @DisplayName("TESTE DE UNIDADE - Salvar contrato sem cliente não valida cliente")
+    void salvarContratoSemClienteNaoValidaCliente() {
+        contratoValido.setCliente(null);
+
+        when(contratoRepository.save(any(Contrato.class))).thenReturn(contratoValido);
+
+        Contrato resultado = contratoService.salvar(contratoValido);
+
+        assertNotNull(resultado);
+        verify(clienteRepository, never()).findById(any());
+    }
+
+    @Test
+    @DisplayName("TESTE DE UNIDADE - Salvar contrato com cliente sem ID não valida")
+    void salvarContratoComClienteSemIdNaoValida() {
+        Cliente clienteSemId = new Cliente();
+        contratoValido.setCliente(clienteSemId);
+
+        when(contratoRepository.save(any(Contrato.class))).thenReturn(contratoValido);
+
+        Contrato resultado = contratoService.salvar(contratoValido);
+
+        assertNotNull(resultado);
+        verify(clienteRepository, never()).findById(any());
+    }
+
+    @Test
+    @DisplayName("TESTE DE UNIDADE - Salvar contrato sem data fim não valida datas")
+    void salvarContratoSemDataFimNaoValidaDatas() {
+        contratoValido.setDataFim(null);
+
+        when(clienteRepository.findById(1L)).thenReturn(Optional.of(cliente));
+        when(contratoRepository.save(any(Contrato.class))).thenReturn(contratoValido);
+
+        Contrato resultado = contratoService.salvar(contratoValido);
+
+        assertNotNull(resultado);
+        verify(contratoRepository, times(1)).save(any(Contrato.class));
+    }
+
+    @Test
+    @DisplayName("TESTE DE UNIDADE - Listar todos retorna lista vazia")
+    void listarTodosRetornaListaVazia() {
+        when(contratoRepository.findAll()).thenReturn(Arrays.asList());
+
+        List<Contrato> resultado = contratoService.listarTodos();
+
+        assertNotNull(resultado);
+        assertEquals(0, resultado.size());
+    }
+
+    @Test
+    @DisplayName("TESTE DE UNIDADE - Buscar por cliente retorna lista vazia")
+    void buscarPorClienteRetornaListaVazia() {
+        when(contratoRepository.findByClienteId(999L)).thenReturn(Arrays.asList());
+
+        List<Contrato> resultado = contratoService.buscarPorCliente(999L);
+
+        assertNotNull(resultado);
+        assertEquals(0, resultado.size());
+    }
+
+    @Test
+    @DisplayName("TESTE DE UNIDADE - Buscar por status retorna lista vazia")
+    void buscarPorStatusRetornaListaVazia() {
+        when(contratoRepository.findByStatus("INEXISTENTE")).thenReturn(Arrays.asList());
+
+        List<Contrato> resultado = contratoService.buscarPorStatus("INEXISTENTE");
+
+        assertNotNull(resultado);
+        assertEquals(0, resultado.size());
     }
 }
