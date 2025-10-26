@@ -187,4 +187,50 @@ class ServicoServiceTest {
         assertEquals(2, resultado.size());
         verify(servicoRepository, times(1)).findAll();
     }
+
+    @Test
+    @DisplayName("TESTE DE UNIDADE - Listar todos retorna lista vazia quando não há serviços")
+    void listarTodosRetornaListaVaziaQuandoNaoHaServicos() {
+        when(servicoRepository.findAll()).thenReturn(Arrays.asList());
+
+        List<Servico> resultado = servicoService.listarTodos();
+
+        assertNotNull(resultado);
+        assertEquals(0, resultado.size());
+        verify(servicoRepository, times(1)).findAll();
+    }
+
+    @Test
+    @DisplayName("TESTE DE UNIDADE - Buscar ativos retorna lista vazia quando nenhum ativo")
+    void buscarAtivosRetornaListaVaziaQuandoNenhumAtivo() {
+        when(servicoRepository.findByAtivoTrue()).thenReturn(Arrays.asList());
+
+        List<Servico> resultado = servicoService.buscarAtivos();
+
+        assertNotNull(resultado);
+        assertEquals(0, resultado.size());
+    }
+
+    @Test
+    @DisplayName("TESTE DE UNIDADE - Buscar por categoria retorna lista vazia")
+    void buscarPorCategoriaRetornaListaVazia() {
+        when(servicoRepository.findByCategoria("INEXISTENTE")).thenReturn(Arrays.asList());
+
+        List<Servico> resultado = servicoService.buscarPorCategoria("INEXISTENTE");
+
+        assertNotNull(resultado);
+        assertEquals(0, resultado.size());
+    }
+
+    @Test
+    @DisplayName("TESTE DE UNIDADE - Buscar por nome retorna lista vazia")
+    void buscarPorNomeRetornaListaVazia() {
+        when(servicoRepository.findByNomeContainingIgnoreCase("INEXISTENTE"))
+                .thenReturn(Arrays.asList());
+
+        List<Servico> resultado = servicoService.buscarPorNome("INEXISTENTE");
+
+        assertNotNull(resultado);
+        assertEquals(0, resultado.size());
+    }
 }
