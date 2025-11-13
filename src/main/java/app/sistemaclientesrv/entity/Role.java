@@ -1,5 +1,6 @@
 package app.sistemaclientesrv.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -28,6 +29,7 @@ public class Role {
     private String description;
 
     @ManyToMany(mappedBy = "roles")
+    @JsonIgnore // Evita serialização circular
     private Set<User> users;
 
     public Role(String name, String description) {
