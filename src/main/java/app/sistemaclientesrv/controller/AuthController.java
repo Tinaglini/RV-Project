@@ -56,8 +56,8 @@ public class AuthController {
             SecurityContextHolder.getContext().setAuthentication(authentication);
             String jwt = jwtTokenProvider.generateToken(authentication);
 
-            // Carregar usuário do banco para garantir que as roles sejam carregadas (EAGER fetch)
-            User user = userRepository.findByUsername(loginRequest.getUsername())
+            // Carregar usuário do banco com JOIN FETCH para garantir que as roles sejam carregadas
+            User user = userRepository.findByUsernameWithRoles(loginRequest.getUsername())
                     .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
             List<String> roles = user.getRoles().stream()
