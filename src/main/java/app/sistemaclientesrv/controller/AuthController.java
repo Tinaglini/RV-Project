@@ -60,9 +60,25 @@ public class AuthController {
             User user = userRepository.findByUsernameWithRoles(loginRequest.getUsername())
                     .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
-            List<String> roles = user.getRoles().stream()
+            // DEBUG: Verificar se roles foram carregadas
+            System.out.println("DEBUG - User ID: " + user.getId());
+            System.out.println("DEBUG - Username: " + user.getUsername());
+            System.out.println("DEBUG - Roles object: " + user.getRoles());
+            System.out.println("DEBUG - Roles size: " + (user.getRoles() != null ? user.getRoles().size() : "NULL"));
+
+            if (user.getRoles() != null) {
+                user.getRoles().forEach(role -> {
+                    System.out.println("DEBUG - Role found: " + role.getName());
+                });
+            }
+
+            List<String> roles = user.getRoles() != null
+                ? user.getRoles().stream()
                     .map(Role::getName)
-                    .collect(Collectors.toList());
+                    .collect(Collectors.toList())
+                : List.of();
+
+            System.out.println("DEBUG - Roles list final: " + roles);
 
             return ResponseEntity.ok(new JwtResponse(
                     jwt,
