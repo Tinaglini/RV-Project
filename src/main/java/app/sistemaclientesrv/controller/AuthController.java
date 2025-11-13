@@ -62,20 +62,26 @@ public class AuthController {
             User user = userRepository.findByUsernameWithRoles(loginRequest.getUsername())
                     .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
+            // FORÇAR inicialização da coleção de roles (Hibernate proxy issue)
+            Set<Role> userRoles = user.getRoles();
+            if (userRoles != null) {
+                userRoles.size(); // Força inicialização
+            }
+
             // DEBUG: Verificar se roles foram carregadas
             System.out.println("DEBUG - User ID: " + user.getId());
             System.out.println("DEBUG - Username: " + user.getUsername());
-            System.out.println("DEBUG - Roles object: " + user.getRoles());
-            System.out.println("DEBUG - Roles size: " + (user.getRoles() != null ? user.getRoles().size() : "NULL"));
+            System.out.println("DEBUG - Roles object: " + userRoles);
+            System.out.println("DEBUG - Roles size: " + (userRoles != null ? userRoles.size() : "NULL"));
 
-            if (user.getRoles() != null) {
-                user.getRoles().forEach(role -> {
+            if (userRoles != null && !userRoles.isEmpty()) {
+                userRoles.forEach(role -> {
                     System.out.println("DEBUG - Role found: " + role.getName());
                 });
             }
 
-            List<String> roles = user.getRoles() != null
-                ? user.getRoles().stream()
+            List<String> roles = userRoles != null && !userRoles.isEmpty()
+                ? userRoles.stream()
                     .map(Role::getName)
                     .collect(Collectors.toList())
                 : List.of();
