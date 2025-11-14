@@ -69,18 +69,14 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // Rotas públicas
+                        // Rotas públicas (não requerem autenticação)
                         .requestMatchers(
-                                "/api/auth/**",
-                                "/api/public/**",
-                                "/api/clientes/**",  // TEMPORÁRIO: permitir sem auth
-                                "/api/contratos/**", // TEMPORÁRIO: permitir sem auth
-                                "/api/categorias/**", // TEMPORÁRIO: permitir sem auth
-                                "/api/servicos/**",   // TEMPORÁRIO: permitir sem auth
-                                "/h2-console/**",
-                                "/error"
+                                "/api/auth/**",      // Endpoints de autenticação (login, register)
+                                "/api/public/**",    // Endpoints públicos
+                                "/h2-console/**",    // Console H2 (apenas desenvolvimento)
+                                "/error"             // Página de erro
                         ).permitAll()
-                        // Todas as outras rotas requerem autenticação
+                        // Todas as outras rotas requerem autenticação JWT
                         .anyRequest().authenticated()
                 )
                 .authenticationProvider(authenticationProvider())
