@@ -73,6 +73,10 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/api/auth/**",
                                 "/api/public/**",
+                                "/api/clientes/**",  // TEMPORÁRIO: permitir sem auth
+                                "/api/contratos/**", // TEMPORÁRIO: permitir sem auth
+                                "/api/categorias/**", // TEMPORÁRIO: permitir sem auth
+                                "/api/servicos/**",   // TEMPORÁRIO: permitir sem auth
                                 "/h2-console/**",
                                 "/error"
                         ).permitAll()
