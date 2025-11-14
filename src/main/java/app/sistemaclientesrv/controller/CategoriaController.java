@@ -15,7 +15,7 @@ import java.util.List;
  * Expõe endpoints para CRUD completo das categorias.
  */
 @RestController
-@RequestMapping("/categorias")
+@RequestMapping("/api/categorias")
 @CrossOrigin(origins = "*")
 public class CategoriaController {
 
