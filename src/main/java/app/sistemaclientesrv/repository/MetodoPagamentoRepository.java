@@ -11,31 +11,37 @@ import java.util.List;
 @Repository
 public interface MetodoPagamentoRepository extends JpaRepository<MetodoPagamento, Long> {
 
-    List<MetodoPagamento> findAll();
-
-    // OBRIGATÓRIO 1: Busca métodos de pagamento por tipo
-    List<MetodoPagamento> findByTipoIgnoreCase(String tipo);
-
-    // OBRIGATÓRIO 2: Busca métodos de pagamento por cliente
+    // Busca transações de pagamento por cliente
     List<MetodoPagamento> findByClienteId(Long clienteId);
 
-    // Extra: Busca métodos de pagamento principais
-    List<MetodoPagamento> findByPrincipalTrue();
+    // Busca transações de pagamento por contrato (conta)
+    List<MetodoPagamento> findByContratoId(Long contratoId);
 
-    // Extra: Busca métodos de pagamento por status
+    // Busca transações de pagamento por serviço (forma de pagamento)
+    List<MetodoPagamento> findByServicoId(Long servicoId);
+
+    // Busca transações de pagamento por status
     List<MetodoPagamento> findByStatus(String status);
 
-    // Extra: Busca métodos de pagamento ativos de um cliente
+    // Busca transações de pagamento de um cliente com determinado status
     List<MetodoPagamento> findByClienteIdAndStatus(Long clienteId, String status);
 
-    // Extra: Busca método de pagamento principal do cliente
-    List<MetodoPagamento> findByClienteIdAndPrincipalTrue(Long clienteId);
+    // Busca transações de um contrato com determinado status
+    List<MetodoPagamento> findByContratoIdAndStatus(Long contratoId, String status);
 
-    // Consulta personalizada JPQL: busca métodos de pagamento por nome do cliente
+    // Consulta personalizada JPQL: busca transações por nome do cliente
     @Query("SELECT m FROM MetodoPagamento m WHERE m.cliente.nome LIKE %:nomeCliente%")
     List<MetodoPagamento> buscarPorNomeCliente(@Param("nomeCliente") String nomeCliente);
 
-    // Consulta personalizada JPQL: busca métodos de pagamento PIX com QR Code gerado
-    @Query("SELECT m FROM MetodoPagamento m WHERE m.tipo = 'PIX' AND m.qrCode IS NOT NULL")
+    // Consulta personalizada JPQL: busca transações PIX com QR Code gerado
+    @Query("SELECT m FROM MetodoPagamento m WHERE m.servico.nome = 'PIX' AND m.qrCode IS NOT NULL")
     List<MetodoPagamento> buscarPIXComQRCode();
+
+    // Consulta personalizada JPQL: busca transações concluídas de um cliente
+    @Query("SELECT m FROM MetodoPagamento m WHERE m.cliente.id = :clienteId AND m.status = 'CONCLUIDO' ORDER BY m.dataTransacao DESC")
+    List<MetodoPagamento> buscarPagamentosConcluidos(@Param("clienteId") Long clienteId);
+
+    // Consulta personalizada JPQL: busca total pago por cliente
+    @Query("SELECT SUM(m.valorTotal) FROM MetodoPagamento m WHERE m.cliente.id = :clienteId AND m.status = 'CONCLUIDO'")
+    Double calcularTotalPagoPorCliente(@Param("clienteId") Long clienteId);
 }

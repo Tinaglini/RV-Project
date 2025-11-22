@@ -51,35 +51,41 @@ public class MetodoPagamentoService {
         return metodoPagamentoRepository.findByClienteId(clienteId);
     }
 
-    public List<MetodoPagamento> buscarPorTipo(String tipo) {
-        return metodoPagamentoRepository.findByTipoIgnoreCase(tipo);
-    }
-
     public List<MetodoPagamento> buscarPorStatus(String status) {
         return metodoPagamentoRepository.findByStatus(status);
     }
 
+    public List<MetodoPagamento> buscarPorContrato(Long contratoId) {
+        return metodoPagamentoRepository.findByContratoId(contratoId);
+    }
+
+    public List<MetodoPagamento> buscarPorServico(Long servicoId) {
+        return metodoPagamentoRepository.findByServicoId(servicoId);
+    }
+
     /**
-     * Gera QR Code PIX fake para um método de pagamento
-     * @param id ID do método de pagamento
-     * @param valor Valor do pagamento
+     * Gera QR Code PIX fake para uma transação de pagamento
+     * @param id ID da transação de pagamento
+     * @param valor Valor do pagamento (não usado, pois já está na transação)
      * @param descricao Descrição do pagamento
-     * @return Método de pagamento com QR Code gerado
+     * @return Transação de pagamento com QR Code gerado
      */
     public MetodoPagamento gerarQRCodePIX(Long id, Double valor, String descricao) {
         MetodoPagamento metodoPagamento = buscarPorId(id);
 
-        if (!"PIX".equalsIgnoreCase(metodoPagamento.getTipo())) {
+        // Verifica se o serviço usado é PIX
+        if (metodoPagamento.getServico() == null ||
+            !"PIX".equalsIgnoreCase(metodoPagamento.getServico().getNome())) {
             throw new RuntimeException("Geração de QR Code disponível apenas para métodos PIX");
         }
 
-        metodoPagamento.gerarQRCodePIX(valor, descricao);
+        metodoPagamento.gerarQRCodePIX(descricao);
         return metodoPagamentoRepository.save(metodoPagamento);
     }
 
     /**
-     * Busca métodos de pagamento PIX com QR Code gerado
-     * @return Lista de métodos PIX com QR Code
+     * Busca transações de pagamento PIX com QR Code gerado
+     * @return Lista de transações PIX com QR Code
      */
     public List<MetodoPagamento> buscarPIXComQRCode() {
         return metodoPagamentoRepository.buscarPIXComQRCode();

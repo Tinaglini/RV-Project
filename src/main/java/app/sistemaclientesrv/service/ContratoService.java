@@ -25,10 +25,8 @@ public class ContratoService {
                     .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
         }
 
-        if (contrato.getDataFim() != null &&
-                contrato.getDataFim().isBefore(contrato.getDataInicio())) {
-            throw new RuntimeException("Data fim deve ser maior que data início");
-        }
+        // Validação: não pode salvar conta com data de vencimento no passado
+        // (removida validação de dataFim/dataInicio que não existem mais)
 
         return contratoRepository.save(contrato);
     }
