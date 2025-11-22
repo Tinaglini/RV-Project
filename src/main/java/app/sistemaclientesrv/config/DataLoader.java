@@ -1,21 +1,14 @@
 package app.sistemaclientesrv.config;
 
-import app.sistemaclientesrv.entity.Categoria;
-import app.sistemaclientesrv.entity.Cliente;
-import app.sistemaclientesrv.entity.Role;
-import app.sistemaclientesrv.entity.Servico;
-import app.sistemaclientesrv.entity.User;
-import app.sistemaclientesrv.repository.CategoriaRepository;
-import app.sistemaclientesrv.repository.ClienteRepository;
-import app.sistemaclientesrv.repository.RoleRepository;
-import app.sistemaclientesrv.repository.ServicoRepository;
-import app.sistemaclientesrv.repository.UserRepository;
+import app.sistemaclientesrv.entity.*;
+import app.sistemaclientesrv.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -30,6 +23,12 @@ public class DataLoader implements CommandLineRunner {
 
     @Autowired
     private ServicoRepository servicoRepository;
+
+    @Autowired
+    private ContratoRepository contratoRepository;
+
+    @Autowired
+    private MetodoPagamentoRepository metodoPagamentoRepository;
 
     @Autowired
     private RoleRepository roleRepository;
@@ -63,6 +62,14 @@ public class DataLoader implements CommandLineRunner {
 
         if (clienteRepository.count() == 0) {
             carregarClientesExemplo();
+        }
+
+        if (contratoRepository.count() == 0) {
+            carregarContratos();
+        }
+
+        if (metodoPagamentoRepository.count() == 0) {
+            carregarMetodosPagamento();
         }
     }
 
@@ -134,17 +141,29 @@ public class DataLoader implements CommandLineRunner {
     }
 
     private void carregarServicos() {
-        Servico recarga = new Servico("Recarga de Celular", "Recarga para todas as operadoras", 10.0, "RECARGA");
-        Servico pagamento = new Servico("Pagamento de Boletos", "Pagamento de contas e boletos", 2.5, "FINANCEIRO");
-        Servico transferencia = new Servico("Transferência PIX", "Transferências via PIX", 1.0, "FINANCEIRO");
-        Servico cartao = new Servico("Cartão Pré-pago", "Emissão de cartão pré-pago", 15.0, "DIGITAL");
+        // Formas de pagamento disponíveis com suas taxas
+        Servico pix = new Servico("PIX", "Transferência instantânea via PIX", 0.0, "TRANSFERENCIA");
+        pix.setTempoProcessamento("Instantâneo");
 
-        servicoRepository.save(recarga);
-        servicoRepository.save(pagamento);
-        servicoRepository.save(transferencia);
-        servicoRepository.save(cartao);
+        Servico ted = new Servico("TED", "Transferência Eletrônica Disponível", 8.50, "TRANSFERENCIA");
+        ted.setTempoProcessamento("Mesmo dia útil");
 
-        System.out.println("Serviços carregados com sucesso!");
+        Servico boleto = new Servico("Boleto", "Pagamento via boleto bancário", 3.90, "BOLETO");
+        boleto.setTempoProcessamento("1-2 dias úteis");
+
+        Servico cartaoCredito = new Servico("Cartão de Crédito", "Pagamento com cartão de crédito", 5.0, "CARTAO");
+        cartaoCredito.setTempoProcessamento("Instantâneo");
+
+        Servico cartaoDebito = new Servico("Cartão de Débito", "Pagamento com cartão de débito", 2.0, "DEBITO_CONTA");
+        cartaoDebito.setTempoProcessamento("Instantâneo");
+
+        servicoRepository.save(pix);
+        servicoRepository.save(ted);
+        servicoRepository.save(boleto);
+        servicoRepository.save(cartaoCredito);
+        servicoRepository.save(cartaoDebito);
+
+        System.out.println("✓ Formas de pagamento carregadas: PIX, TED, Boleto, Cartões");
     }
 
     private void carregarClientesExemplo() {
@@ -178,5 +197,161 @@ public class DataLoader implements CommandLineRunner {
         }
 
         System.out.println("Clientes de exemplo carregados com sucesso!");
+    }
+
+    private void carregarContratos() {
+        Cliente joao = clienteRepository.findByCpf("12345678901").orElse(null);
+        Cliente maria = clienteRepository.findByCpf("98765432100").orElse(null);
+        Cliente empresaABC = clienteRepository.findByCpf("12345678000195").orElse(null);
+
+        if (joao != null) {
+            // Contas de João
+            Contrato contaLuz = new Contrato(
+                "Conta de Luz - CPFL",
+                185.50,
+                LocalDate.now().plusDays(10),
+                "ENERGIA",
+                joao
+            );
+
+            Contrato contaAgua = new Contrato(
+                "Conta de Água - SABESP",
+                95.30,
+                LocalDate.now().plusDays(5),
+                "AGUA",
+                joao
+            );
+            contaAgua.setCodigoBarras("23793381286000001953309189270038698410000009530");
+
+            Contrato contaInternet = new Contrato(
+                "Internet Fibra 300MB - Vivo",
+                119.90,
+                LocalDate.now().plusDays(15),
+                "INTERNET",
+                joao
+            );
+
+            contratoRepository.save(contaLuz);
+            contratoRepository.save(contaAgua);
+            contratoRepository.save(contaInternet);
+        }
+
+        if (maria != null) {
+            // Contas de Maria
+            Contrato contaTelefone = new Contrato(
+                "Telefone Fixo - Claro",
+                65.00,
+                LocalDate.now().plusDays(7),
+                "TELEFONE",
+                maria
+            );
+
+            Contrato contaGas = new Contrato(
+                "Gás Natural - Comgás",
+                78.40,
+                LocalDate.now().plusDays(12),
+                "GAS",
+                maria
+            );
+
+            contratoRepository.save(contaTelefone);
+            contratoRepository.save(contaGas);
+        }
+
+        if (empresaABC != null) {
+            // Contas da Empresa ABC
+            Contrato aluguel = new Contrato(
+                "Aluguel Escritório - Centro",
+                4500.00,
+                LocalDate.now().plusDays(3),
+                "ALUGUEL",
+                empresaABC
+            );
+
+            Contrato contaLuzEmpresa = new Contrato(
+                "Conta de Luz Empresa - Enel",
+                850.00,
+                LocalDate.now().plusDays(8),
+                "ENERGIA",
+                empresaABC
+            );
+
+            contratoRepository.save(aluguel);
+            contratoRepository.save(contaLuzEmpresa);
+        }
+
+        System.out.println("✓ Contas a pagar carregadas: luz, água, internet, telefone, gás, aluguel");
+    }
+
+    private void carregarMetodosPagamento() {
+        Cliente joao = clienteRepository.findByCpf("12345678901").orElse(null);
+        Cliente maria = clienteRepository.findByCpf("98765432100").orElse(null);
+
+        Servico pix = servicoRepository.findByNome("PIX").orElse(null);
+        Servico boleto = servicoRepository.findByNome("Boleto").orElse(null);
+        Servico cartaoCredito = servicoRepository.findByNome("Cartão de Crédito").orElse(null);
+
+        if (joao != null && pix != null) {
+            // João pagou a conta de água usando PIX
+            Contrato contaAgua = contratoRepository.findAll().stream()
+                .filter(c -> c.getCliente().equals(joao) && c.getCategoria().equals("AGUA"))
+                .findFirst()
+                .orElse(null);
+
+            if (contaAgua != null) {
+                MetodoPagamento pagamentoAgua = new MetodoPagamento(95.30, joao, contaAgua, pix);
+                pagamentoAgua.setChavePix("joao.silva@email.com");
+                pagamentoAgua.setStatus("CONCLUIDO");
+                pagamentoAgua.setDataTransacao(LocalDateTime.now().minusDays(1));
+                pagamentoAgua.calcularValorTotal();
+                pagamentoAgua.gerarQRCodePIX("Pagamento conta de água");
+                pagamentoAgua.setComprovante("COMPROVANTE-PIX-" + System.currentTimeMillis());
+
+                metodoPagamentoRepository.save(pagamentoAgua);
+
+                // Atualiza status do contrato
+                contaAgua.setStatus("PAGO");
+                contaAgua.setDataPagamento(LocalDate.now().minusDays(1));
+                contratoRepository.save(contaAgua);
+            }
+        }
+
+        if (maria != null && boleto != null) {
+            // Maria tem um pagamento pendente de telefone via boleto
+            Contrato contaTelefone = contratoRepository.findAll().stream()
+                .filter(c -> c.getCliente().equals(maria) && c.getCategoria().equals("TELEFONE"))
+                .findFirst()
+                .orElse(null);
+
+            if (contaTelefone != null) {
+                MetodoPagamento pagamentoTelefone = new MetodoPagamento(65.00, maria, contaTelefone, boleto);
+                pagamentoTelefone.setCodigoBarras("34191790010104351004791020150008884360000006500");
+                pagamentoTelefone.setLinhaDigitavel("34191.79001 01043.510047 91020.150008 8 84360000006500");
+                pagamentoTelefone.setStatus("PENDENTE");
+                pagamentoTelefone.calcularValorTotal();
+
+                metodoPagamentoRepository.save(pagamentoTelefone);
+            }
+        }
+
+        if (joao != null && cartaoCredito != null) {
+            // João agendou pagamento da internet com cartão
+            Contrato contaInternet = contratoRepository.findAll().stream()
+                .filter(c -> c.getCliente().equals(joao) && c.getCategoria().equals("INTERNET"))
+                .findFirst()
+                .orElse(null);
+
+            if (contaInternet != null) {
+                MetodoPagamento pagamentoInternet = new MetodoPagamento(119.90, joao, contaInternet, cartaoCredito);
+                pagamentoInternet.setNumeroCartao("**** **** **** 1234");
+                pagamentoInternet.setBandeira("VISA");
+                pagamentoInternet.setStatus("PROCESSANDO");
+                pagamentoInternet.calcularValorTotal();
+
+                metodoPagamentoRepository.save(pagamentoInternet);
+            }
+        }
+
+        System.out.println("✓ Transações de pagamento carregadas: PIX (concluído), Boleto (pendente), Cartão (processando)");
     }
 }
