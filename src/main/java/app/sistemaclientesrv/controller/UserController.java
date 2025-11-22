@@ -18,6 +18,11 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/api/users")
+@CrossOrigin(
+    origins = "*",
+    allowedHeaders = "*",
+    methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE}
+)
 @RequiredArgsConstructor
 public class UserController {
 

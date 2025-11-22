@@ -12,6 +12,11 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/servicos")
+@CrossOrigin(
+    origins = "*",
+    allowedHeaders = "*",
+    methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE}
+)
 public class ServicoController {
 
     @Autowired

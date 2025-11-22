@@ -30,6 +30,11 @@ import java.util.stream.Collectors;
  */
 @RestController
 @RequestMapping("/api/auth")
+@CrossOrigin(
+    origins = "*",
+    allowedHeaders = "*",
+    methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE}
+)
 @RequiredArgsConstructor
 public class AuthController {
 

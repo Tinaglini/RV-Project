@@ -13,6 +13,11 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/metodos-pagamento")
+@CrossOrigin(
+    origins = "*",
+    allowedHeaders = "*",
+    methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE}
+)
 public class MetodoPagamentoController {
 
     @Autowired
