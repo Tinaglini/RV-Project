@@ -1,6 +1,6 @@
 package app.sistemaclientesrv.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -104,19 +104,19 @@ public class MetodoPagamento {
     // Relacionamento N-1 com Cliente (quem fez o pagamento)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cliente_id")
-    @JsonIgnoreProperties({"metodosPagamento", "contratos"})
+    @JsonBackReference("cliente-metodos")
     private Cliente cliente;
 
     // Relacionamento N-1 com Contrato (qual conta foi paga)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "contrato_id")
-    @JsonIgnoreProperties("metodosPagamento")
+    @JsonBackReference("contrato-metodos")
     private Contrato contrato;
 
     // Relacionamento N-1 com Servico (qual forma de pagamento foi usada)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "servico_id")
-    @JsonIgnoreProperties("metodosPagamento")
+    @JsonBackReference("servico-metodos")
     private Servico servico;
 
     public MetodoPagamento() {

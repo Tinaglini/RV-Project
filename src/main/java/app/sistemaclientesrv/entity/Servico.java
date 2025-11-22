@@ -1,6 +1,6 @@
 package app.sistemaclientesrv.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -59,7 +59,7 @@ public class Servico {
 
     // Relacionamento 1-N com MetodoPagamento (pagamentos feitos com este serviço)
     @OneToMany(mappedBy = "servico", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonIgnoreProperties("servico")
+    @JsonManagedReference("servico-metodos")
     private List<MetodoPagamento> metodosPagamento;
 
     public Servico() {
