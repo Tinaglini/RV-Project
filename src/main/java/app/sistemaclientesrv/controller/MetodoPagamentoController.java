@@ -53,9 +53,14 @@ public class MetodoPagamentoController {
         return ResponseEntity.ok(metodoPagamentoService.buscarPorCliente(clienteId));
     }
 
-    @GetMapping("/tipo/{tipo}")
-    public ResponseEntity<List<MetodoPagamento>> buscarPorTipo(@PathVariable String tipo) {
-        return ResponseEntity.ok(metodoPagamentoService.buscarPorTipo(tipo));
+    @GetMapping("/contrato/{contratoId}")
+    public ResponseEntity<List<MetodoPagamento>> buscarPorContrato(@PathVariable Long contratoId) {
+        return ResponseEntity.ok(metodoPagamentoService.buscarPorContrato(contratoId));
+    }
+
+    @GetMapping("/servico/{servicoId}")
+    public ResponseEntity<List<MetodoPagamento>> buscarPorServico(@PathVariable Long servicoId) {
+        return ResponseEntity.ok(metodoPagamentoService.buscarPorServico(servicoId));
     }
 
     @GetMapping("/status/{status}")

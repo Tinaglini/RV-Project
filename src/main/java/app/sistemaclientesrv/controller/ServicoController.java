@@ -56,8 +56,8 @@ public class ServicoController {
         return ResponseEntity.ok(servicoService.buscarPorNome(nome));
     }
 
-    @GetMapping("/categoria/{categoria}")
-    public ResponseEntity<List<Servico>> buscarPorCategoria(@PathVariable String categoria) {
-        return ResponseEntity.ok(servicoService.buscarPorCategoria(categoria));
+    @GetMapping("/tipo/{tipo}")
+    public ResponseEntity<List<Servico>> buscarPorTipo(@PathVariable String tipo) {
+        return ResponseEntity.ok(servicoService.buscarPorTipo(tipo));
     }
 }
