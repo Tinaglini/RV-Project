@@ -10,14 +10,15 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 
 /**
- * Entidade intermediária que representa os itens de um contrato RV Digital.
- * Implementa relacionamento N-N entre Contrato e Servico.
+ * Entidade que representa os itens de pedido/transação no sistema RV Digital.
+ * Implementa relacionamento N-N entre Contrato e Servico, armazenando
+ * informações de quantidade, valores e descontos de cada item.
  */
 @Entity
-@Table(name = "itens")
+@Table(name = "pedido_itens")
 @Getter
 @Setter
-public class Item {
+public class PedidoItem {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -45,20 +46,20 @@ public class Item {
     // Relacionamento N-1 com Contrato
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "contrato_id")
-    @JsonIgnoreProperties("itens")
+    @JsonIgnoreProperties("pedidoItens")
     private Contrato contrato;
 
     // Relacionamento N-1 com Servico
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "servico_id")
-    @JsonIgnoreProperties("itens")
+    @JsonIgnoreProperties("pedidoItens")
     private Servico servico;
 
-    public Item() {
+    public PedidoItem() {
         this.createdAt = LocalDateTime.now();
     }
 
-    public Item(Integer quantidade, Double valor, Contrato contrato, Servico servico) {
+    public PedidoItem(Integer quantidade, Double valor, Contrato contrato, Servico servico) {
         this();
         this.quantidade = quantidade;
         this.valor = valor;
@@ -75,7 +76,7 @@ public class Item {
 
     @Override
     public String toString() {
-        return "Item{" +
+        return "PedidoItem{" +
                 "id=" + id +
                 ", quantidade=" + quantidade +
                 ", valor=" + valor +
