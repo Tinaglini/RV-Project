@@ -56,7 +56,7 @@ public class Contrato {
 
     @OneToMany(mappedBy = "contrato", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnoreProperties("contrato")
-    private List<Item> itens;
+    private List<PedidoItem> pedidoItens;
 
     public Contrato() {
         this.createdAt = LocalDateTime.now();
