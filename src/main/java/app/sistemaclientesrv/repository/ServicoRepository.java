@@ -7,24 +7,31 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ServicoRepository extends JpaRepository<Servico, Long> {
 
-    List<Servico> findAll();
-    // OBRIGATÓRIO 1: Busca serviços por nome (ignora maiúsculas/minúsculas)
+    // Busca serviço por nome exato (necessário para DataLoader)
+    Optional<Servico> findByNome(String nome);
+
+    // Busca serviços por nome parcial (ignora maiúsculas/minúsculas)
     List<Servico> findByNomeContainingIgnoreCase(String nome);
 
-    // OBRIGATÓRIO 2: Retorna apenas os serviços ativos
+    // Retorna apenas as formas de pagamento ativas
     List<Servico> findByAtivoTrue();
 
-    // Extra: Busca serviços por categoria
-    List<Servico> findByCategoria(String categoria);
+    // Busca por tipo de forma de pagamento (TRANSFERENCIA, BOLETO, CARTAO, DEBITO_CONTA)
+    List<Servico> findByTipo(String tipo);
 
-    // Extra: Busca serviços ativos por categoria
-    List<Servico> findByCategoriaAndAtivoTrue(String categoria);
+    // Busca formas de pagamento ativas por tipo
+    List<Servico> findByTipoAndAtivoTrue(String tipo);
 
-    // Consulta personalizada JPQL: busca serviços com valor até determinado limite
-    @Query("SELECT s FROM Servico s WHERE s.valor <= :valorMaximo AND s.ativo = true")
-    List<Servico> buscarPorValorMaximo(@Param("valorMaximo") Double valorMaximo);
+    // Consulta personalizada JPQL: busca formas de pagamento com taxa até determinado limite
+    @Query("SELECT s FROM Servico s WHERE s.taxa <= :taxaMaxima AND s.ativo = true")
+    List<Servico> buscarPorTaxaMaxima(@Param("taxaMaxima") Double taxaMaxima);
+
+    // Busca formas de pagamento gratuitas (taxa = 0)
+    @Query("SELECT s FROM Servico s WHERE s.taxa = 0.0 AND s.ativo = true")
+    List<Servico> buscarFormasPagamentoGratuitas();
 }
