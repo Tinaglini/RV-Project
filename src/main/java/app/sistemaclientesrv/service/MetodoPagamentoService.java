@@ -1,12 +1,15 @@
 package app.sistemaclientesrv.service;
 
+import app.sistemaclientesrv.entity.Contrato;
 import app.sistemaclientesrv.entity.MetodoPagamento;
+import app.sistemaclientesrv.repository.ContratoRepository;
 import app.sistemaclientesrv.repository.MetodoPagamentoRepository;
 import app.sistemaclientesrv.repository.ClienteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -19,12 +22,37 @@ public class MetodoPagamentoService {
     @Autowired
     private ClienteRepository clienteRepository;
 
+    @Autowired
+    private ContratoRepository contratoRepository;
+
     public MetodoPagamento salvar(MetodoPagamento metodoPagamento) {
+        // Validar cliente
         if (metodoPagamento.getCliente() != null && metodoPagamento.getCliente().getId() != null) {
             clienteRepository.findById(metodoPagamento.getCliente().getId())
                     .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
         }
-        return metodoPagamentoRepository.save(metodoPagamento);
+
+        // Calcular valor total (valor + taxa do serviço)
+        metodoPagamento.calcularValorTotal();
+
+        // Salvar transação de pagamento
+        MetodoPagamento pagamentoSalvo = metodoPagamentoRepository.save(metodoPagamento);
+
+        // Atualizar status do contrato automaticamente se pagamento foi concluído
+        if ("CONCLUIDO".equalsIgnoreCase(metodoPagamento.getStatus()) &&
+            metodoPagamento.getContrato() != null &&
+            metodoPagamento.getContrato().getId() != null) {
+
+            Contrato contrato = contratoRepository.findById(metodoPagamento.getContrato().getId())
+                    .orElseThrow(() -> new RuntimeException("Contrato não encontrado"));
+
+            // Atualizar status do contrato para PAGO
+            contrato.setStatus("PAGO");
+            contrato.setDataPagamento(LocalDate.now());
+            contratoRepository.save(contrato);
+        }
+
+        return pagamentoSalvo;
     }
 
     public MetodoPagamento buscarPorId(Long id) {
