@@ -73,7 +73,6 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/api/auth/**",      // Endpoints de autenticação (login, register)
                                 "/api/public/**",    // Endpoints públicos
-                                "/api/**",           // TEMPORÁRIO: Permite todos os endpoints de API para testes
                                 "/h2-console/**",    // Console H2 (apenas desenvolvimento)
                                 "/error"             // Página de erro
                         ).permitAll()
