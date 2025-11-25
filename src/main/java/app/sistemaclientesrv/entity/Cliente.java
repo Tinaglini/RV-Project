@@ -2,7 +2,6 @@ package app.sistemaclientesrv.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -92,11 +91,11 @@ public class Cliente {
     private Categoria categoria;
 
     @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonManagedReference("cliente-metodos")
+    @JsonIgnoreProperties("cliente")
     private List<MetodoPagamento> metodosPagamento;
 
     @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonManagedReference("cliente-contratos")
+    @JsonIgnoreProperties("cliente")
     private List<Contrato> contratos;
 
     public Cliente() {

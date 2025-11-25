@@ -1,7 +1,6 @@
 package app.sistemaclientesrv.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -68,14 +67,14 @@ public class Contrato {
     private LocalDateTime updatedAt;
 
     // Relacionamento N-1 com Cliente
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "cliente_id")
-    @JsonBackReference("cliente-contratos")
+    @JsonIgnoreProperties({"contratos", "metodosPagamento", "senha", "senhaHash"})
     private Cliente cliente;
 
     // Relacionamento 1-N com MetodoPagamento (histórico de tentativas de pagamento)
     @OneToMany(mappedBy = "contrato", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonManagedReference("contrato-metodos")
+    @JsonIgnoreProperties("contrato")
     private List<MetodoPagamento> metodosPagamento;
 
     public Contrato() {
