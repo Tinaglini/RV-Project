@@ -11,49 +11,49 @@ import java.util.List;
 
 @Service
 @Transactional
-<span class="fc" id="L14">public class ServicoService {</span>
+<span class="nc" id="L14">public class ServicoService {</span>
 
     @Autowired
     private ServicoRepository servicoRepository;
 
     public Servico salvar(Servico servico) {
-<span class="fc bfc" id="L20" title="All 2 branches covered.">        if (servico.getValor() &lt;= 0) {</span>
-<span class="fc" id="L21">            throw new RuntimeException(&quot;Valor do serviço deve ser positivo&quot;);</span>
+<span class="nc bnc" id="L20" title="All 4 branches missed.">        if (servico.getTaxa() == null || servico.getTaxa() &lt; 0) {</span>
+<span class="nc" id="L21">            throw new RuntimeException(&quot;Taxa da forma de pagamento não pode ser negativa&quot;);</span>
         }
-<span class="fc" id="L23">        return servicoRepository.save(servico);</span>
+<span class="nc" id="L23">        return servicoRepository.save(servico);</span>
     }
 
     public Servico buscarPorId(Long id) {
-<span class="fc" id="L27">        return servicoRepository.findById(id)</span>
-<span class="fc" id="L28">                .orElseThrow(() -&gt; new RuntimeException(&quot;Serviço não encontrado&quot;));</span>
+<span class="nc" id="L27">        return servicoRepository.findById(id)</span>
+<span class="nc" id="L28">                .orElseThrow(() -&gt; new RuntimeException(&quot;Serviço não encontrado&quot;));</span>
     }
 
     public List&lt;Servico&gt; listarTodos() {
-<span class="fc" id="L32">        return servicoRepository.findAll();</span>
+<span class="nc" id="L32">        return servicoRepository.findAll();</span>
     }
 
     public Servico atualizar(Long id, Servico servico) {
-<span class="fc" id="L36">        buscarPorId(id);</span>
-<span class="fc" id="L37">        servico.setId(id);</span>
-<span class="fc" id="L38">        servico.setUpdatedAt(LocalDateTime.now());</span>
-<span class="fc" id="L39">        return servicoRepository.save(servico);</span>
+<span class="nc" id="L36">        buscarPorId(id);</span>
+<span class="nc" id="L37">        servico.setId(id);</span>
+<span class="nc" id="L38">        servico.setUpdatedAt(LocalDateTime.now());</span>
+<span class="nc" id="L39">        return servicoRepository.save(servico);</span>
     }
 
     public void deletar(Long id) {
-<span class="fc" id="L43">        Servico servico = buscarPorId(id);</span>
-<span class="fc" id="L44">        servicoRepository.delete(servico);</span>
-<span class="fc" id="L45">    }</span>
+<span class="nc" id="L43">        Servico servico = buscarPorId(id);</span>
+<span class="nc" id="L44">        servicoRepository.delete(servico);</span>
+<span class="nc" id="L45">    }</span>
 
     public List&lt;Servico&gt; buscarAtivos() {
-<span class="fc" id="L48">        return servicoRepository.findByAtivoTrue();</span>
+<span class="nc" id="L48">        return servicoRepository.findByAtivoTrue();</span>
     }
 
-    public List&lt;Servico&gt; buscarPorCategoria(String categoria) {
-<span class="fc" id="L52">        return servicoRepository.findByCategoria(categoria);</span>
+    public List&lt;Servico&gt; buscarPorTipo(String tipo) {
+<span class="nc" id="L52">        return servicoRepository.findByTipo(tipo);</span>
     }
 
     public List&lt;Servico&gt; buscarPorNome(String nome) {
-<span class="fc" id="L56">        return servicoRepository.findByNomeContainingIgnoreCase(nome);</span>
+<span class="nc" id="L56">        return servicoRepository.findByNomeContainingIgnoreCase(nome);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

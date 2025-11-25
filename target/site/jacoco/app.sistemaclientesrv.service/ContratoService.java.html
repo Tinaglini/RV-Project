@@ -11,7 +11,7 @@ import java.util.List;
 
 @Service
 @Transactional
-<span class="fc" id="L14">public class ContratoService {</span>
+<span class="nc" id="L14">public class ContratoService {</span>
 
     @Autowired
     private ContratoRepository contratoRepository;
@@ -20,45 +20,43 @@ import java.util.List;
     private ClienteRepository clienteRepository;
 
     public Contrato salvar(Contrato contrato) {
-<span class="fc bfc" id="L23" title="All 4 branches covered.">        if (contrato.getCliente() != null &amp;&amp; contrato.getCliente().getId() != null) {</span>
-<span class="fc" id="L24">            clienteRepository.findById(contrato.getCliente().getId())</span>
-<span class="fc" id="L25">                    .orElseThrow(() -&gt; new RuntimeException(&quot;Cliente não encontrado&quot;));</span>
+<span class="nc bnc" id="L23" title="All 4 branches missed.">        if (contrato.getCliente() != null &amp;&amp; contrato.getCliente().getId() != null) {</span>
+<span class="nc" id="L24">            clienteRepository.findById(contrato.getCliente().getId())</span>
+<span class="nc" id="L25">                    .orElseThrow(() -&gt; new RuntimeException(&quot;Cliente não encontrado&quot;));</span>
         }
 
-<span class="fc bfc" id="L28" title="All 2 branches covered.">        if (contrato.getDataFim() != null &amp;&amp;</span>
-<span class="pc bpc" id="L29" title="1 of 2 branches missed.">                contrato.getDataFim().isBefore(contrato.getDataInicio())) {</span>
-<span class="fc" id="L30">            throw new RuntimeException(&quot;Data fim deve ser maior que data início&quot;);</span>
-        }
+        // Validação: não pode salvar conta com data de vencimento no passado
+        // (removida validação de dataFim/dataInicio que não existem mais)
 
-<span class="fc" id="L33">        return contratoRepository.save(contrato);</span>
+<span class="nc" id="L31">        return contratoRepository.save(contrato);</span>
     }
 
     public Contrato buscarPorId(Long id) {
-<span class="fc" id="L37">        return contratoRepository.findById(id)</span>
-<span class="fc" id="L38">                .orElseThrow(() -&gt; new RuntimeException(&quot;Contrato não encontrado&quot;));</span>
+<span class="nc" id="L35">        return contratoRepository.findById(id)</span>
+<span class="nc" id="L36">                .orElseThrow(() -&gt; new RuntimeException(&quot;Contrato não encontrado&quot;));</span>
     }
 
     public List&lt;Contrato&gt; listarTodos() {
-<span class="fc" id="L42">        return contratoRepository.findAll();</span>
+<span class="nc" id="L40">        return contratoRepository.findAll();</span>
     }
 
     public Contrato atualizar(Long id, Contrato contrato) {
-<span class="fc" id="L46">        buscarPorId(id);</span>
-<span class="fc" id="L47">        contrato.setId(id);</span>
-<span class="fc" id="L48">        return contratoRepository.save(contrato);</span>
+<span class="nc" id="L44">        buscarPorId(id);</span>
+<span class="nc" id="L45">        contrato.setId(id);</span>
+<span class="nc" id="L46">        return contratoRepository.save(contrato);</span>
     }
 
     public void deletar(Long id) {
-<span class="fc" id="L52">        Contrato contrato = buscarPorId(id);</span>
-<span class="fc" id="L53">        contratoRepository.delete(contrato);</span>
-<span class="fc" id="L54">    }</span>
+<span class="nc" id="L50">        Contrato contrato = buscarPorId(id);</span>
+<span class="nc" id="L51">        contratoRepository.delete(contrato);</span>
+<span class="nc" id="L52">    }</span>
 
     public List&lt;Contrato&gt; buscarPorCliente(Long clienteId) {
-<span class="fc" id="L57">        return contratoRepository.findByClienteId(clienteId);</span>
+<span class="nc" id="L55">        return contratoRepository.findByClienteId(clienteId);</span>
     }
 
     public List&lt;Contrato&gt; buscarPorStatus(String status) {
-<span class="fc" id="L61">        return contratoRepository.findByStatus(status);</span>
+<span class="nc" id="L59">        return contratoRepository.findByStatus(status);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

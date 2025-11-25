@@ -1,7 +1,13 @@
 GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
-Sistema Clientes RV,app.sistemaclientesrv.service,ServicoService,0,76,0,2,0,17,0,11,0,10
-Sistema Clientes RV,app.sistemaclientesrv.service,EnderecoService,0,79,0,4,0,16,0,12,0,10
-Sistema Clientes RV,app.sistemaclientesrv.service,ItemService,0,104,0,8,0,21,0,15,0,11
+Sistema Clientes RV,app.sistemaclientesrv.dto,MessageResponse,81,0,14,0,4,0,15,0,8,0
+Sistema Clientes RV,app.sistemaclientesrv.dto,SignupRequest,210,0,38,0,7,0,33,0,14,0
+Sistema Clientes RV,app.sistemaclientesrv.dto,LoginRequest,124,0,22,0,5,0,21,0,10,0
+Sistema Clientes RV,app.sistemaclientesrv.dto,JwtResponse,277,0,46,0,14,0,40,0,17,0
+Sistema Clientes RV,app.sistemaclientesrv.security,JwtTokenProvider,102,0,0,0,35,0,7,0,7,0
+Sistema Clientes RV,app.sistemaclientesrv.security,UserDetailsServiceImpl,21,0,0,0,3,0,3,0,3,0
+Sistema Clientes RV,app.sistemaclientesrv.security,JwtAuthenticationFilter,85,0,8,0,20,0,8,0,4,0
+Sistema Clientes RV,app.sistemaclientesrv.service,ServicoService,79,0,4,0,17,0,12,0,10,0
 Sistema Clientes RV,app.sistemaclientesrv.service,ClienteService,10,378,4,46,2,82,4,39,0,18
 Sistema Clientes RV,app.sistemaclientesrv.service,CategoriaService,0,75,0,2,0,16,0,10,0,9
-Sistema Clientes RV,app.sistemaclientesrv.service,ContratoService,0,93,1,7,0,19,1,13,0,10
+Sistema Clientes RV,app.sistemaclientesrv.service,MetodoPagamentoService,162,0,14,0,35,0,22,0,15,0
+Sistema Clientes RV,app.sistemaclientesrv.service,ContratoService,79,0,4,0,16,0,12,0,10,0
