@@ -11,8 +11,10 @@ import app.sistemaclientesrv.repository.UserRepository;
 import app.sistemaclientesrv.security.JwtTokenProvider;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -28,6 +30,7 @@ import java.util.stream.Collectors;
 /**
  * Controller para endpoints de autenticação
  */
+@Slf4j
 @RestController
 @RequestMapping("/api/auth")
 @CrossOrigin(
@@ -50,15 +53,19 @@ public class AuthController {
      * @return JWT token e informações do usuário
      */
     @PostMapping("/login")
-    @Transactional(readOnly = true)
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
+        log.info("🔐 Tentando login para usuário: {}", loginRequest.getUsername());
+
         try {
+            // Autenticar usuário (Spring Security valida senha automaticamente)
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             loginRequest.getUsername(),
                             loginRequest.getPassword()
                     )
             );
+
+            log.info("✅ Autenticação bem-sucedida para: {}", loginRequest.getUsername());
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
             String jwt = jwtTokenProvider.generateToken(authentication);
@@ -73,15 +80,23 @@ public class AuthController {
                     .collect(Collectors.toList())
                 : List.of();
 
+            log.info("🎫 Token JWT gerado para: {}", loginRequest.getUsername());
+
             return ResponseEntity.ok(new JwtResponse(
                     jwt,
                     user.getUsername(),
                     user.getEmail(),
                     roles
             ));
-        } catch (Exception e) {
+        } catch (BadCredentialsException e) {
+            log.warn("❌ Credenciais inválidas para usuário: {}", loginRequest.getUsername());
             return ResponseEntity.status(401)
-                    .body(new MessageResponse("Credenciais inválidas: " + e.getMessage()));
+                    .body(new MessageResponse("Usuário ou senha incorretos"));
+        } catch (Exception e) {
+            log.error("❌ Erro inesperado no login para usuário: {} - {}",
+                      loginRequest.getUsername(), e.getMessage(), e);
+            return ResponseEntity.status(500)
+                    .body(new MessageResponse("Erro ao processar login: " + e.getMessage()));
         }
     }
 
