@@ -4,8 +4,10 @@ import app.sistemaclientesrv.dto.JwtResponse;
 import app.sistemaclientesrv.dto.LoginRequest;
 import app.sistemaclientesrv.dto.MessageResponse;
 import app.sistemaclientesrv.dto.SignupRequest;
+import app.sistemaclientesrv.entity.Cliente;
 import app.sistemaclientesrv.entity.Role;
 import app.sistemaclientesrv.entity.User;
+import app.sistemaclientesrv.repository.ClienteRepository;
 import app.sistemaclientesrv.repository.RoleRepository;
 import app.sistemaclientesrv.repository.UserRepository;
 import app.sistemaclientesrv.security.JwtTokenProvider;
@@ -43,6 +45,7 @@ public class AuthController {
 
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
+    private final ClienteRepository clienteRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
@@ -101,55 +104,75 @@ public class AuthController {
     }
 
     /**
-     * Endpoint de registro de novo usuário
-     * @param signupRequest Dados do novo usuário
+     * Endpoint de registro de novo usuário + cliente
+     * Cria AMBOS: User (autenticação) e Cliente (dados pessoais)
+     *
+     * @param signupRequest Dados do novo usuário/cliente
      * @return Mensagem de sucesso ou erro
      */
     @PostMapping("/register")
+    @Transactional
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signupRequest) {
-        if (userRepository.existsByUsername(signupRequest.getUsername())) {
-            return ResponseEntity.badRequest()
-                    .body(new MessageResponse("Erro: Username já está em uso!"));
-        }
+        log.info("📝 Tentando registrar novo usuário: {}", signupRequest.getEmail());
 
+        // Validar se email já existe
         if (userRepository.existsByEmail(signupRequest.getEmail())) {
+            log.warn("⚠️ Email já cadastrado: {}", signupRequest.getEmail());
             return ResponseEntity.badRequest()
                     .body(new MessageResponse("Erro: Email já está em uso!"));
         }
 
-        // Criar novo usuário
-        User user = new User();
-        user.setUsername(signupRequest.getUsername());
-        user.setEmail(signupRequest.getEmail());
-        user.setPassword(passwordEncoder.encode(signupRequest.getPassword()));
-
-        Set<String> strRoles = signupRequest.getRoles();
-        Set<Role> roles = new HashSet<>();
-
-        if (strRoles == null || strRoles.isEmpty()) {
-            Role userRole = roleRepository.findByName("ROLE_USER")
-                    .orElseThrow(() -> new RuntimeException("Erro: Role não encontrada."));
-            roles.add(userRole);
-        } else {
-            strRoles.forEach(role -> {
-                switch (role.toUpperCase()) {
-                    case "ADMIN":
-                        Role adminRole = roleRepository.findByName("ROLE_ADMIN")
-                                .orElseThrow(() -> new RuntimeException("Erro: Role não encontrada."));
-                        roles.add(adminRole);
-                        break;
-                    case "USER":
-                    default:
-                        Role userRole = roleRepository.findByName("ROLE_USER")
-                                .orElseThrow(() -> new RuntimeException("Erro: Role não encontrada."));
-                        roles.add(userRole);
-                }
-            });
+        // Validar se CPF já existe
+        if (clienteRepository.findByCpf(signupRequest.getCpf()).isPresent()) {
+            log.warn("⚠️ CPF já cadastrado: {}", signupRequest.getCpf());
+            return ResponseEntity.badRequest()
+                    .body(new MessageResponse("Erro: CPF já está cadastrado!"));
         }
 
-        user.setRoles(roles);
-        userRepository.save(user);
+        try {
+            // 1. Criar User (para autenticação Spring Security)
+            User user = new User();
+            user.setUsername(signupRequest.getEmail()); // Email como username
+            user.setEmail(signupRequest.getEmail());
+            user.setPassword(passwordEncoder.encode(signupRequest.getSenha()));
 
-        return ResponseEntity.ok(new MessageResponse("Usuário registrado com sucesso!"));
+            // Definir roles
+            Set<Role> roles = new HashSet<>();
+            Role userRole = roleRepository.findByName("ROLE_USER")
+                    .orElseThrow(() -> new RuntimeException("Erro: Role ROLE_USER não encontrada"));
+            roles.add(userRole);
+            user.setRoles(roles);
+
+            // Salvar User primeiro
+            User savedUser = userRepository.save(user);
+            log.info("✅ User criado com ID: {}", savedUser.getId());
+
+            // 2. Criar Cliente (dados pessoais completos)
+            Cliente cliente = new Cliente();
+            cliente.setNome(signupRequest.getNome());
+            cliente.setEmail(signupRequest.getEmail());
+            cliente.setCpf(signupRequest.getCpf());
+            cliente.setDataNascimento(signupRequest.getDataNascimento());
+            cliente.setTelefone(signupRequest.getTelefone());
+            cliente.setSenhaHash(passwordEncoder.encode(signupRequest.getSenha())); // Mesma senha criptografada
+            cliente.setAtivo(true);
+            cliente.setStatusCadastro("COMPLETO");
+
+            // Salvar Cliente
+            Cliente savedCliente = clienteRepository.save(cliente);
+            log.info("✅ Cliente criado com ID: {}", savedCliente.getId());
+
+            log.info("🎉 Registro completo! User ID: {}, Cliente ID: {}",
+                     savedUser.getId(), savedCliente.getId());
+
+            return ResponseEntity.ok(new MessageResponse(
+                "Conta criada com sucesso! Você já pode fazer login."
+            ));
+
+        } catch (Exception e) {
+            log.error("❌ Erro ao registrar usuário: {}", e.getMessage(), e);
+            return ResponseEntity.status(500)
+                    .body(new MessageResponse("Erro ao criar conta: " + e.getMessage()));
+        }
     }
 }
