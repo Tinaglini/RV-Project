@@ -2,6 +2,7 @@ package app.sistemaclientesrv.config;
 
 import app.sistemaclientesrv.entity.*;
 import app.sistemaclientesrv.repository.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -12,6 +13,14 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Data loader component that initializes the database with sample data on application startup.
+ * Creates default roles, test users, categories, services, clients, contracts, and payment records.
+ *
+ * @author Sistema Clientes RV
+ * @version 1.0
+ */
+@Slf4j
 @Component
 public class DataLoader implements CommandLineRunner {
 
@@ -73,6 +82,9 @@ public class DataLoader implements CommandLineRunner {
         }
     }
 
+    /**
+     * Loads default system roles (ROLE_USER and ROLE_ADMIN).
+     */
     private void carregarRoles() {
         Role roleUser = new Role("ROLE_USER", "Usuário comum do sistema");
         Role roleAdmin = new Role("ROLE_ADMIN", "Administrador do sistema");
@@ -80,16 +92,19 @@ public class DataLoader implements CommandLineRunner {
         roleRepository.save(roleUser);
         roleRepository.save(roleAdmin);
 
-        System.out.println("✓ Roles carregadas: ROLE_USER, ROLE_ADMIN");
+        log.info("Loaded default roles: ROLE_USER, ROLE_ADMIN");
     }
 
+    /**
+     * Creates test users for development and testing purposes.
+     * Creates two accounts: 'user' (ROLE_USER) and 'admin' (ROLE_USER + ROLE_ADMIN).
+     */
     private void carregarUsuariosTeste() {
         Role roleUser = roleRepository.findByName("ROLE_USER")
                 .orElseThrow(() -> new RuntimeException("Role ROLE_USER não encontrada"));
         Role roleAdmin = roleRepository.findByName("ROLE_ADMIN")
                 .orElseThrow(() -> new RuntimeException("Role ROLE_ADMIN não encontrada"));
 
-        // Usuário comum
         Set<Role> userRoles = new HashSet<>();
         userRoles.add(roleUser);
 
@@ -105,7 +120,6 @@ public class DataLoader implements CommandLineRunner {
 
         userRepository.save(user);
 
-        // Usuário administrador
         Set<Role> adminRoles = new HashSet<>();
         adminRoles.add(roleUser);
         adminRoles.add(roleAdmin);
@@ -122,11 +136,14 @@ public class DataLoader implements CommandLineRunner {
 
         userRepository.save(admin);
 
-        System.out.println("✓ Usuários de teste criados:");
-        System.out.println("  - Username: user | Password: user123 | Roles: ROLE_USER");
-        System.out.println("  - Username: admin | Password: admin123 | Roles: ROLE_USER, ROLE_ADMIN");
+        log.info("Test users created successfully");
+        log.info("  - Username: user | Password: user123 | Roles: ROLE_USER");
+        log.info("  - Username: admin | Password: admin123 | Roles: ROLE_USER, ROLE_ADMIN");
     }
 
+    /**
+     * Loads client categories (PESSOA_FISICA and PESSOA_JURIDICA).
+     */
     private void carregarCategorias() {
         Categoria pessoaFisica = new Categoria("PESSOA_FISICA", "Clientes pessoa física");
         pessoaFisica.setBeneficios("Taxas reduzidas, atendimento personalizado");
@@ -137,11 +154,13 @@ public class DataLoader implements CommandLineRunner {
         categoriaRepository.save(pessoaFisica);
         categoriaRepository.save(pessoaJuridica);
 
-        System.out.println("Categorias carregadas com sucesso!");
+        log.info("Client categories loaded successfully");
     }
 
+    /**
+     * Loads available payment services with their respective fees and processing times.
+     */
     private void carregarServicos() {
-        // Formas de pagamento disponíveis com suas taxas
         Servico pix = new Servico("PIX", "Transferência instantânea via PIX", 0.0, "TRANSFERENCIA");
         pix.setTempoProcessamento("Instantâneo");
 
@@ -163,9 +182,12 @@ public class DataLoader implements CommandLineRunner {
         servicoRepository.save(cartaoCredito);
         servicoRepository.save(cartaoDebito);
 
-        System.out.println("✓ Formas de pagamento carregadas: PIX, TED, Boleto, Cartões");
+        log.info("Payment services loaded: PIX, TED, Boleto, Credit Card, Debit Card");
     }
 
+    /**
+     * Loads sample clients for testing purposes.
+     */
     private void carregarClientesExemplo() {
         Categoria pessoaFisica = categoriaRepository.findByNome("PESSOA_FISICA").orElse(null);
         Categoria pessoaJuridica = categoriaRepository.findByNome("PESSOA_JURIDICA").orElse(null);
@@ -180,7 +202,7 @@ public class DataLoader implements CommandLineRunner {
             Cliente cliente2 = new Cliente("Maria Santos", "98765432100", LocalDate.of(1990, 7, 22));
             cliente2.setEmail("maria.santos@email.com");
             cliente2.setCategoria(pessoaFisica);
-            cliente2.setStatusCadastro("INCOMPLETO"); // Sem telefone
+            cliente2.setStatusCadastro("INCOMPLETO");
 
             clienteRepository.save(cliente1);
             clienteRepository.save(cliente2);
@@ -196,16 +218,18 @@ public class DataLoader implements CommandLineRunner {
             clienteRepository.save(cliente3);
         }
 
-        System.out.println("Clientes de exemplo carregados com sucesso!");
+        log.info("Sample clients loaded successfully");
     }
 
+    /**
+     * Loads sample contracts (bills to pay) for testing purposes.
+     */
     private void carregarContratos() {
         Cliente joao = clienteRepository.findByCpf("12345678901").orElse(null);
         Cliente maria = clienteRepository.findByCpf("98765432100").orElse(null);
         Cliente empresaABC = clienteRepository.findByCpf("12345678000195").orElse(null);
 
         if (joao != null) {
-            // Contas de João
             Contrato contaLuz = new Contrato(
                 "Conta de Luz - CPFL",
                 185.50,
@@ -237,7 +261,6 @@ public class DataLoader implements CommandLineRunner {
         }
 
         if (maria != null) {
-            // Contas de Maria
             Contrato contaTelefone = new Contrato(
                 "Telefone Fixo - Claro",
                 65.00,
@@ -259,7 +282,6 @@ public class DataLoader implements CommandLineRunner {
         }
 
         if (empresaABC != null) {
-            // Contas da Empresa ABC
             Contrato aluguel = new Contrato(
                 "Aluguel Escritório - Centro",
                 4500.00,
@@ -280,9 +302,12 @@ public class DataLoader implements CommandLineRunner {
             contratoRepository.save(contaLuzEmpresa);
         }
 
-        System.out.println("✓ Contas a pagar carregadas: luz, água, internet, telefone, gás, aluguel");
+        log.info("Sample contracts loaded: electricity, water, internet, phone, gas, rent");
     }
 
+    /**
+     * Loads sample payment transactions for testing purposes.
+     */
     private void carregarMetodosPagamento() {
         Cliente joao = clienteRepository.findByCpf("12345678901").orElse(null);
         Cliente maria = clienteRepository.findByCpf("98765432100").orElse(null);
@@ -292,7 +317,6 @@ public class DataLoader implements CommandLineRunner {
         Servico cartaoCredito = servicoRepository.findByNome("Cartão de Crédito").orElse(null);
 
         if (joao != null && pix != null) {
-            // João pagou a conta de água usando PIX
             Contrato contaAgua = contratoRepository.findAll().stream()
                 .filter(c -> c.getCliente().equals(joao) && c.getCategoria().equals("AGUA"))
                 .findFirst()
@@ -309,7 +333,6 @@ public class DataLoader implements CommandLineRunner {
 
                 metodoPagamentoRepository.save(pagamentoAgua);
 
-                // Atualiza status do contrato
                 contaAgua.setStatus("PAGO");
                 contaAgua.setDataPagamento(LocalDate.now().minusDays(1));
                 contratoRepository.save(contaAgua);
@@ -317,7 +340,6 @@ public class DataLoader implements CommandLineRunner {
         }
 
         if (maria != null && boleto != null) {
-            // Maria tem um pagamento pendente de telefone via boleto
             Contrato contaTelefone = contratoRepository.findAll().stream()
                 .filter(c -> c.getCliente().equals(maria) && c.getCategoria().equals("TELEFONE"))
                 .findFirst()
@@ -335,7 +357,6 @@ public class DataLoader implements CommandLineRunner {
         }
 
         if (joao != null && cartaoCredito != null) {
-            // João agendou pagamento da internet com cartão
             Contrato contaInternet = contratoRepository.findAll().stream()
                 .filter(c -> c.getCliente().equals(joao) && c.getCategoria().equals("INTERNET"))
                 .findFirst()
@@ -352,6 +373,6 @@ public class DataLoader implements CommandLineRunner {
             }
         }
 
-        System.out.println("✓ Transações de pagamento carregadas: PIX (concluído), Boleto (pendente), Cartão (processando)");
+        log.info("Sample payment transactions loaded: PIX (completed), Boleto (pending), Credit Card (processing)");
     }
 }

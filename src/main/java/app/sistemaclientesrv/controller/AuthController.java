@@ -30,7 +30,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Controller para endpoints de autenticação
+ * Authentication controller for user login and registration endpoints.
+ * Handles JWT token generation and user account creation.
+ *
+ * @author Sistema Clientes RV
+ * @version 1.0
  */
 @Slf4j
 @RestController
@@ -51,16 +55,16 @@ public class AuthController {
     private final JwtTokenProvider jwtTokenProvider;
 
     /**
-     * Endpoint de login
-     * @param loginRequest Credenciais de login
-     * @return JWT token e informações do usuário
+     * Authenticates a user and generates a JWT token.
+     *
+     * @param loginRequest user credentials (username and password)
+     * @return ResponseEntity containing JWT token and user information, or error message
      */
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
-        log.info("🔐 Tentando login para usuário: {}", loginRequest.getUsername());
+        log.info("Attempting login for user: {}", loginRequest.getUsername());
 
         try {
-            // Autenticar usuário (Spring Security valida senha automaticamente)
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             loginRequest.getUsername(),
@@ -68,12 +72,11 @@ public class AuthController {
                     )
             );
 
-            log.info("✅ Autenticação bem-sucedida para: {}", loginRequest.getUsername());
+            log.info("Authentication successful for user: {}", loginRequest.getUsername());
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
             String jwt = jwtTokenProvider.generateToken(authentication);
 
-            // Carregar usuário do banco com JOIN FETCH para garantir que as roles sejam carregadas
             User user = userRepository.findByUsernameWithRoles(loginRequest.getUsername())
                     .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
@@ -83,7 +86,7 @@ public class AuthController {
                     .collect(Collectors.toList())
                 : List.of();
 
-            log.info("🎫 Token JWT gerado para: {}", loginRequest.getUsername());
+            log.info("JWT token generated for user: {}", loginRequest.getUsername());
 
             return ResponseEntity.ok(new JwtResponse(
                     jwt,
@@ -92,11 +95,11 @@ public class AuthController {
                     roles
             ));
         } catch (BadCredentialsException e) {
-            log.warn("❌ Credenciais inválidas para usuário: {}", loginRequest.getUsername());
+            log.warn("Invalid credentials for user: {}", loginRequest.getUsername());
             return ResponseEntity.status(401)
                     .body(new MessageResponse("Usuário ou senha incorretos"));
         } catch (Exception e) {
-            log.error("❌ Erro inesperado no login para usuário: {} - {}",
+            log.error("Unexpected error during login for user: {} - {}",
                       loginRequest.getUsername(), e.getMessage(), e);
             return ResponseEntity.status(500)
                     .body(new MessageResponse("Erro ao processar login: " + e.getMessage()));
@@ -104,65 +107,59 @@ public class AuthController {
     }
 
     /**
-     * Endpoint de registro de novo usuário + cliente
-     * Cria AMBOS: User (autenticação) e Cliente (dados pessoais)
+     * Registers a new user account by creating both User and Cliente entities.
+     * The User entity is used for Spring Security authentication, while Cliente
+     * stores complete personal information.
      *
-     * @param signupRequest Dados do novo usuário/cliente
-     * @return Mensagem de sucesso ou erro
+     * @param signupRequest complete registration data including personal information
+     * @return ResponseEntity containing success message or validation error
      */
     @PostMapping("/register")
     @Transactional
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signupRequest) {
-        log.info("📝 Tentando registrar novo usuário: {}", signupRequest.getEmail());
+        log.info("Attempting user registration for email: {}", signupRequest.getEmail());
 
-        // Validar se email já existe
         if (userRepository.existsByEmail(signupRequest.getEmail())) {
-            log.warn("⚠️ Email já cadastrado: {}", signupRequest.getEmail());
+            log.warn("Email already registered: {}", signupRequest.getEmail());
             return ResponseEntity.badRequest()
                     .body(new MessageResponse("Erro: Email já está em uso!"));
         }
 
-        // Validar se CPF já existe
         if (clienteRepository.findByCpf(signupRequest.getCpf()).isPresent()) {
-            log.warn("⚠️ CPF já cadastrado: {}", signupRequest.getCpf());
+            log.warn("CPF already registered: {}", signupRequest.getCpf());
             return ResponseEntity.badRequest()
                     .body(new MessageResponse("Erro: CPF já está cadastrado!"));
         }
 
         try {
-            // 1. Criar User (para autenticação Spring Security)
             User user = new User();
-            user.setUsername(signupRequest.getEmail()); // Email como username
+            user.setUsername(signupRequest.getEmail());
             user.setEmail(signupRequest.getEmail());
             user.setPassword(passwordEncoder.encode(signupRequest.getSenha()));
 
-            // Definir roles
             Set<Role> roles = new HashSet<>();
             Role userRole = roleRepository.findByName("ROLE_USER")
                     .orElseThrow(() -> new RuntimeException("Erro: Role ROLE_USER não encontrada"));
             roles.add(userRole);
             user.setRoles(roles);
 
-            // Salvar User primeiro
             User savedUser = userRepository.save(user);
-            log.info("✅ User criado com ID: {}", savedUser.getId());
+            log.info("User entity created with ID: {}", savedUser.getId());
 
-            // 2. Criar Cliente (dados pessoais completos)
             Cliente cliente = new Cliente();
             cliente.setNome(signupRequest.getNome());
             cliente.setEmail(signupRequest.getEmail());
             cliente.setCpf(signupRequest.getCpf());
             cliente.setDataNascimento(signupRequest.getDataNascimento());
             cliente.setTelefone(signupRequest.getTelefone());
-            cliente.setSenhaHash(passwordEncoder.encode(signupRequest.getSenha())); // Mesma senha criptografada
+            cliente.setSenhaHash(passwordEncoder.encode(signupRequest.getSenha()));
             cliente.setAtivo(true);
             cliente.setStatusCadastro("COMPLETO");
 
-            // Salvar Cliente
             Cliente savedCliente = clienteRepository.save(cliente);
-            log.info("✅ Cliente criado com ID: {}", savedCliente.getId());
+            log.info("Cliente entity created with ID: {}", savedCliente.getId());
 
-            log.info("🎉 Registro completo! User ID: {}, Cliente ID: {}",
+            log.info("Registration completed successfully for user ID: {} and cliente ID: {}",
                      savedUser.getId(), savedCliente.getId());
 
             return ResponseEntity.ok(new MessageResponse(
@@ -170,7 +167,7 @@ public class AuthController {
             ));
 
         } catch (Exception e) {
-            log.error("❌ Erro ao registrar usuário: {}", e.getMessage(), e);
+            log.error("Error during user registration: {}", e.getMessage(), e);
             return ResponseEntity.status(500)
                     .body(new MessageResponse("Erro ao criar conta: " + e.getMessage()));
         }

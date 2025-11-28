@@ -16,6 +16,14 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * REST controller for managing contracts (bills to pay).
+ * Implements role-based access control where ADMIN users can access all contracts,
+ * while regular users can only access their own contracts.
+ *
+ * @author Sistema Clientes RV
+ * @version 1.0
+ */
 @RestController
 @RequestMapping("/api/contratos")
 @CrossOrigin(
@@ -32,22 +40,22 @@ public class ContratoController {
     private ClienteRepository clienteRepository;
 
     /**
-     * Lista contratos com base no papel do usuário:
-     * - ADMIN: retorna todos os contratos
-     * - USER: retorna apenas contratos do próprio cliente
+     * Retrieves all contracts based on user role.
+     * ADMIN users receive all contracts, while regular users only receive their own.
+     *
+     * @param authentication current authenticated user
+     * @return list of contracts accessible to the user
      */
     @GetMapping
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     public ResponseEntity<List<Contrato>> listarTodos(Authentication authentication) {
         String username = authentication.getName();
 
-        // Se for ADMIN: retorna TODOS os contratos
         if (authentication.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
             return ResponseEntity.ok(contratoService.listarTodos());
         }
 
-        // Se for USER: retorna apenas contratos do próprio cliente
         Cliente cliente = clienteRepository.findByEmail(username)
                 .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
 
@@ -55,9 +63,13 @@ public class ContratoController {
     }
 
     /**
-     * Busca contrato por ID:
-     * - ADMIN: pode ver qualquer contrato
-     * - USER: pode ver apenas seus próprios contratos
+     * Retrieves a specific contract by ID.
+     * ADMIN users can view any contract, while regular users can only view their own.
+     *
+     * @param id contract identifier
+     * @param authentication current authenticated user
+     * @return the requested contract
+     * @throws AccessDeniedException if a regular user attempts to access another user's contract
      */
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
@@ -65,7 +77,6 @@ public class ContratoController {
         String username = authentication.getName();
         Contrato contrato = contratoService.buscarPorId(id);
 
-        // Se for USER: verificar se o contrato pertence a ele
         if (!authentication.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
 
@@ -81,7 +92,10 @@ public class ContratoController {
     }
 
     /**
-     * Cria novo contrato - Apenas ADMIN
+     * Creates a new contract. Restricted to ADMIN role only.
+     *
+     * @param contrato contract data to create
+     * @return the created contract
      */
     @PostMapping
     @PreAuthorize("hasRole('ROLE_ADMIN')")
@@ -91,7 +105,11 @@ public class ContratoController {
     }
 
     /**
-     * Atualiza contrato existente - Apenas ADMIN
+     * Updates an existing contract. Restricted to ADMIN role only.
+     *
+     * @param id contract identifier
+     * @param contrato updated contract data
+     * @return the updated contract
      */
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
@@ -102,7 +120,10 @@ public class ContratoController {
     }
 
     /**
-     * Deleta contrato - Apenas ADMIN
+     * Deletes a contract. Restricted to ADMIN role only.
+     *
+     * @param id contract identifier to delete
+     * @return no content response
      */
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
@@ -112,9 +133,13 @@ public class ContratoController {
     }
 
     /**
-     * Busca contratos por cliente:
-     * - ADMIN: pode buscar contratos de qualquer cliente
-     * - USER: pode buscar apenas seus próprios contratos
+     * Retrieves contracts for a specific client.
+     * ADMIN users can search for any client, while regular users can only search their own contracts.
+     *
+     * @param clienteId client identifier
+     * @param authentication current authenticated user
+     * @return list of contracts for the specified client
+     * @throws AccessDeniedException if a regular user attempts to access another client's contracts
      */
     @GetMapping("/cliente/{clienteId}")
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
@@ -122,7 +147,6 @@ public class ContratoController {
                                                             Authentication authentication) {
         String username = authentication.getName();
 
-        // Se for USER: verificar se está buscando seus próprios contratos
         if (!authentication.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
 
@@ -138,8 +162,11 @@ public class ContratoController {
     }
 
     /**
-     * Busca contratos por status - Apenas ADMIN
-     * Permite filtrar contratos por status (PENDENTE, PAGO, VENCIDO, CANCELADO)
+     * Retrieves contracts filtered by status. Restricted to ADMIN role only.
+     * Valid status values: PENDENTE, PAGO, VENCIDO, CANCELADO.
+     *
+     * @param status contract status to filter by
+     * @return list of contracts with the specified status
      */
     @GetMapping("/status/{status}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
@@ -148,9 +175,14 @@ public class ContratoController {
     }
 
     /**
-     * Endpoint para pagar um contrato
-     * - ADMIN: pode pagar qualquer contrato
-     * - USER: pode pagar apenas seus próprios contratos
+     * Processes payment for a contract.
+     * ADMIN users can pay any contract, while regular users can only pay their own.
+     *
+     * @param id contract identifier to pay
+     * @param pagamentoDTO payment method details (service, PIX key, barcode, etc.)
+     * @param authentication current authenticated user
+     * @return the updated contract with PAGO status
+     * @throws AccessDeniedException if a regular user attempts to pay another user's contract
      */
     @PostMapping("/{id}/pagar")
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
@@ -159,7 +191,6 @@ public class ContratoController {
                                           Authentication authentication) {
         String username = authentication.getName();
 
-        // Se for USER: verificar se o contrato pertence a ele
         if (!authentication.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
 
@@ -168,7 +199,6 @@ public class ContratoController {
 
             Contrato contrato = contratoService.buscarPorId(id);
 
-            // Verificar se o contrato pertence ao cliente logado
             if (!contrato.getCliente().getId().equals(cliente.getId())) {
                 throw new AccessDeniedException("Você não tem permissão para pagar este contrato");
             }
