@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: rv-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-rootpassword}
+      MYSQL_DATABASE: ${DB_NAME:-clientes_rv_db}
+      MYSQL_USER: ${DB_USER:-rvuser}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-rvpassword}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - rv-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: rv-backend
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/${DB_NAME:-clientes_rv_db}
+      SPRING_DATASOURCE_USERNAME: ${DB_USER:-rvuser}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-rvpassword}
+      JWT_SECRET: ${JWT_SECRET:-dGhpc0lzQVZlcnlTZWN1cmVTZWNyZXRLZXlGb3JKV1RUb2tlbkdlbmVyYXRpb25XaXRoU3ByaW5nU2VjdXJpdHk=}
+      JWT_EXPIRATION: ${JWT_EXPIRATION:-86400000}
+      SPRING_PROFILES_ACTIVE: prod
+    ports:
+      - "8080:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - rv-network
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
+    driver: local
+
+networks:
+  rv-network:
+    driver: bridge

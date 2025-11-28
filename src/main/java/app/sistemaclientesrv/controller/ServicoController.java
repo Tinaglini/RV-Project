@@ -11,8 +11,12 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/servicos")
-@CrossOrigin(origins = "*")
+@RequestMapping("/api/servicos")
+@CrossOrigin(
+    origins = "*",
+    allowedHeaders = "*",
+    methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE}
+)
 public class ServicoController {
 
     @Autowired
@@ -57,8 +61,8 @@ public class ServicoController {
         return ResponseEntity.ok(servicoService.buscarPorNome(nome));
     }
 
-    @GetMapping("/categoria/{categoria}")
-    public ResponseEntity<List<Servico>> buscarPorCategoria(@PathVariable String categoria) {
-        return ResponseEntity.ok(servicoService.buscarPorCategoria(categoria));
+    @GetMapping("/tipo/{tipo}")
+    public ResponseEntity<List<Servico>> buscarPorTipo(@PathVariable String tipo) {
+        return ResponseEntity.ok(servicoService.buscarPorTipo(tipo));
     }
 }

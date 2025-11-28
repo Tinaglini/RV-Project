@@ -12,8 +12,12 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/clientes")
-@CrossOrigin(origins = "*")
+@RequestMapping("/api/clientes")
+@CrossOrigin(
+    origins = "*",
+    allowedHeaders = "*",
+    methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE}
+)
 public class ClienteController {
 
     @Autowired

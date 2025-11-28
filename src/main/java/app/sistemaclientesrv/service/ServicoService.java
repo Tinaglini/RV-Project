@@ -17,8 +17,8 @@ public class ServicoService {
     private ServicoRepository servicoRepository;
 
     public Servico salvar(Servico servico) {
-        if (servico.getValor() <= 0) {
-            throw new RuntimeException("Valor do serviço deve ser positivo");
+        if (servico.getTaxa() == null || servico.getTaxa() < 0) {
+            throw new RuntimeException("Taxa da forma de pagamento não pode ser negativa");
         }
         return servicoRepository.save(servico);
     }
@@ -48,8 +48,8 @@ public class ServicoService {
         return servicoRepository.findByAtivoTrue();
     }
 
-    public List<Servico> buscarPorCategoria(String categoria) {
-        return servicoRepository.findByCategoria(categoria);
+    public List<Servico> buscarPorTipo(String tipo) {
+        return servicoRepository.findByTipo(tipo);
     }
 
     public List<Servico> buscarPorNome(String nome) {

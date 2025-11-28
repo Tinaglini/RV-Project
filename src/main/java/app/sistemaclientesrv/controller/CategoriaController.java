@@ -15,8 +15,12 @@ import java.util.List;
  * Expõe endpoints para CRUD completo das categorias.
  */
 @RestController
-@RequestMapping("/categorias")
-@CrossOrigin(origins = "*")
+@RequestMapping("/api/categorias")
+@CrossOrigin(
+    origins = "*",
+    allowedHeaders = "*",
+    methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE}
+)
 public class CategoriaController {
 
     @Autowired

@@ -12,23 +12,36 @@ import java.util.List;
 @Repository
 public interface ContratoRepository extends JpaRepository<Contrato, Long> {
 
-    List<Contrato> findAll();
-    // OBRIGATÓRIO 1: Busca contratos por status
+    // Busca contas por status (PENDENTE, PAGO, VENCIDO, CANCELADO)
     List<Contrato> findByStatus(String status);
 
-    // OBRIGATÓRIO 2: Busca contratos por cliente
+    // Busca contas de um cliente específico
     List<Contrato> findByClienteId(Long clienteId);
 
-    // Extra: Busca contratos ativos de clientes ativos
+    // Busca contas pendentes de clientes ativos
     List<Contrato> findByStatusAndClienteAtivoTrue(String status);
 
-    // Extra: Busca contratos por período
-    List<Contrato> findByDataInicioBetween(LocalDate inicio, LocalDate fim);
+    // Busca contas por categoria (ENERGIA, AGUA, TELEFONE, INTERNET, GAS, ALUGUEL)
+    List<Contrato> findByCategoria(String categoria);
 
-    // Extra: Busca contratos vencidos
-    List<Contrato> findByDataFimBeforeAndStatus(LocalDate data, String status);
+    // Busca contas por período de vencimento
+    List<Contrato> findByDataVencimentoBetween(LocalDate inicio, LocalDate fim);
 
-    // Consulta personalizada JPQL: busca contratos por nome do cliente e status
+    // Busca contas vencidas (data de vencimento antes de hoje e status PENDENTE)
+    List<Contrato> findByDataVencimentoBeforeAndStatus(LocalDate data, String status);
+
+    // Busca contas que vencem hoje
+    List<Contrato> findByDataVencimento(LocalDate data);
+
+    // Consulta personalizada JPQL: busca contas por nome do cliente e status
     @Query("SELECT c FROM Contrato c WHERE c.cliente.nome LIKE %:nomeCliente% AND c.status = :status")
     List<Contrato> buscarPorNomeClienteEStatus(@Param("nomeCliente") String nomeCliente, @Param("status") String status);
+
+    // Consulta personalizada JPQL: busca contas próximas ao vencimento (próximos N dias)
+    @Query("SELECT c FROM Contrato c WHERE c.dataVencimento BETWEEN :hoje AND :dataLimite AND c.status = 'PENDENTE' ORDER BY c.dataVencimento ASC")
+    List<Contrato> buscarContasProximasVencimento(@Param("hoje") LocalDate hoje, @Param("dataLimite") LocalDate dataLimite);
+
+    // Consulta personalizada JPQL: calcula total de contas pendentes por cliente
+    @Query("SELECT SUM(c.valor) FROM Contrato c WHERE c.cliente.id = :clienteId AND c.status = 'PENDENTE'")
+    Double calcularTotalPendente(@Param("clienteId") Long clienteId);
 }

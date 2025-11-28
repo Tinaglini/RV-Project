@@ -92,7 +92,7 @@ public class Cliente {
 
     @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnoreProperties("cliente")
-    private List<Endereco> enderecos;
+    private List<MetodoPagamento> metodosPagamento;
 
     @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnoreProperties("cliente")

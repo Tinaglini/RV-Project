@@ -6,3 +6,19 @@
 .idea/misc.xml
 .idea/vcs.xml
 .idea/workspace.xml
+
+# Environment variables
+.env
+.env.local
+.env.production
+
+# Maven
+target/
+!.mvn/wrapper/maven-wrapper.jar
+
+# Logs
+*.log
+
+# Application properties with sensitive data
+application-prod.properties
+application-local.properties
